@@ -3,6 +3,7 @@ import { KEY_PREFIX } from './env'
 import { ATTEND_GOLD, FRIENDS, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
 import { DEFAULT_PLACED, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS } from './data/office'
 import type { Design } from './types'
+import { TITLES } from './data/ranking'
 
 // ⚠️ 저장 키 이름과 형식을 바꾸면 기존 기록이 사라질 수 있습니다.
 export const PROGRESS_KEY = KEY_PREFIX + 'cloud-quest-progress-v1'
@@ -430,4 +431,33 @@ export function giveGift(p: Progress, to: string, item: string, cost: number, po
 export function markEpisodeSeen(p: Progress, id: string): Progress {
   if (p.seenEpisodes?.includes(id)) return p
   return { ...p, seenEpisodes: [...(p.seenEpisodes ?? []), id] }
+}
+
+// ── 랭킹 ──
+/** 랭킹 분야별 내 기록(서버가 저장할 때 다시 확인한다) */
+export function rankStats(p: Progress) {
+  const projects = p.completions.filter((c) => c.counted).length
+  const bought = new Set((p.purchases ?? []).map((x) => x.item)).size
+  const office = bought + earnedMementos(p).size
+  const teamworkSum = FRIENDS.reduce((s, f) => s + teamwork(p, f.id), 0)
+  return { projects, office, teamwork: teamworkSum }
+}
+
+/** 보유한 공통 칭호 id */
+export function ownedTitles(p: Progress) {
+  const m = earnedMementos(p)
+  const bought = new Set((p.purchases ?? []).map((x) => x.item)).size
+  const has: Record<string, boolean> = {
+    rookie: true,
+    first_project: m.has('m_first'),
+    perfect: m.has('m_star'),
+    ten: m.has('m_ten'),
+    streak7: m.has('m_streak'),
+    junior: m.has('m_junior'),
+    senior: m.has('m_senior'),
+    all_clear: m.has('m_all'),
+    decorator: bought >= 3,
+    team_player: m.has('team_photo'),
+  }
+  return new Set(TITLES.filter((t) => has[t.id]).map((t) => t.id))
 }

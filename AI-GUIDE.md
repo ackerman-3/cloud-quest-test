@@ -195,3 +195,13 @@ scripts/check-answers.ts  정답 자동 점검
 - `git-test.bat`: 처음 실행 때 테스트 저장소 주소를 받아 `test` 원격으로 등록 → 변경을 커밋하고 `git push -f test HEAD:main`. 실제 저장소(origin)에는 올리지 않음. 확인 후 `git-save.bat`을 실행하면 같은 커밋이 실제 앱으로 올라감.
 - `src/env.ts`: 주소에 `-test/`가 있으면 테스트 모드. 같은 계정의 GitHub Pages는 localStorage를 공유하므로 모든 저장 키 앞에 `test:`를 붙여 실제 기록과 분리(진행 기록·이어하기·계정 메타·로그인 세션·업데이트 시도). 실제 주소의 키 이름은 그대로. 홈 상단에 빨간 "테스트" 표시.
 - 서버(Supabase)는 실제와 같은 프로젝트를 씀. 테스트 페이지에서는 테스트용 계정을 따로 만들어 쓰는 것을 권장(같은 계정으로 로그인하면 테스트에서 한 기록이 계정 기록에 합쳐짐).
+
+## 14. 랭킹 (2026-11-27, 예전 기획명 "명예의 전당")
+- 진입: 홈 라운지 오른쪽 위 "랭킹" 블록(로그인 시 납품왕 내 순위 표시) → App view `ranking` → `components/Ranking.tsx`.
+- 분야·기준·칭호·프로필 이미지 설정: `src/data/ranking.ts`(CATEGORIES, PERIOD_LABEL, TITLES, AVATARS). 분야: 납품왕(완료 수에 반영된 완료 기록 수) / 사무실 금손(보유 가구+기념품 수) / 탕비실 인싸(세 동료 팀워크 합계). 집계 기간은 전체 기간만.
+- 서버: `supabase/ranking.sql`(schema.sql 끝에도 같은 내용). profiles에 avatar·title·status_msg(40자), 프로필 직접 조회는 본인만(로그인 아이디 비공개), `get_ranking()`이 닉네임·이미지·칭호·상태메시지·분야 기록을 돌려줌. `save_progress(data, base_rev, force, stats)`: 저장할 때 `rank_stats`가 projects는 기록에서 직접 세고, office·teamwork는 앱 값을 받되 기록으로 정한 상한(office ≤ 구매 가구 종류+본 에피소드+11, teamwork ≤ 간식 점수+대화 일수×3+완료×9)을 넘지 못하게 함.
+- 앱: store.ts `rankStats`(업로드 시 함께 보냄)·`ownedTitles`, cloud.ts `fetchRanking`·`updateProfile`.
+- 순위: 기록 0은 "미집계(-)", 같은 기록은 공동 순위(1,1,3). 내 행은 초록 배경+"나". 1~3위는 작은 원형 금·은·동 배지. 상태메시지는 한 줄 말줄임, 프로필에서 전체. 입력값은 모두 일반 텍스트로 표시(React 이스케이프).
+- 화면: 900px 이상은 왼쪽 목록·오른쪽 프로필, 그보다 좁으면 행을 누르면 아래 시트. 본인 프로필에만 "프로필 설정"(이미지 12종, 닉네임, 보유 칭호 중 대표 칭호, 상태메시지 0~40자, 저장·취소).
+- 미리보기(데모 서버)는 예시 참여자 4명과 "예시 데이터" 안내를 보여 줌.
+- 홈 상단: body가 이미 상태바 여백을 주므로 HUD는 margin-top으로 그 위까지 덮어 여백을 한 번만 둠. 홈에서는 html 배경을 남색(`html.home-dark`)으로 해 끌어내릴 때 흰 띠가 보이지 않게 함.

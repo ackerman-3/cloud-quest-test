@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { useSyncExternalStore } from 'react'
 import { SUPABASE_KEY, SUPABASE_URL, USER_EMAIL_DOMAIN } from './data/server'
 import { mergeProgress } from './merge'
-import { emptyProgress, isEmptyProgress, loadProgress, saveProgress, type Progress } from './store'
+import { emptyProgress, isEmptyProgress, loadProgress, rankStats, saveProgress, type Progress } from './store'
 
 import { DEMO_URL } from './demoServer'
 
@@ -28,6 +28,9 @@ interface Meta {
   userId?: string
   username?: string
   nickname?: string
+  avatar?: string
+  title?: string
+  status?: string
   /** 마지막으로 서버와 맞춘 서버 기록 번호 */
   rev: number
   /** 서버에 아직 올리지 않은 변경이 있음 */
@@ -59,8 +62,12 @@ function saveMeta(m: Meta) {
 export interface CloudState {
   enabled: boolean
   signedIn: boolean
+  userId?: string
   username?: string
   nickname?: string
+  avatar?: string
+  title?: string
+  status?: string
   syncing: boolean
   pending: boolean
   lastSync?: number
@@ -76,8 +83,12 @@ function computeState(): CloudState {
   return {
     enabled,
     signedIn,
+    userId: signedIn ? m.userId : undefined,
     username: signedIn ? m.username : undefined,
     nickname: signedIn ? m.nickname : undefined,
+    avatar: signedIn ? m.avatar : undefined,
+    title: signedIn ? m.title : undefined,
+    status: signedIn ? m.status : undefined,
     syncing,
     pending: m.dirty,
     lastSync: m.lastSync,
@@ -162,7 +173,7 @@ interface Row {
 interface Backend {
   fetchRow(): Promise<Row | null>
   pushRow(p: Progress, base: number, force: boolean): Promise<number | null>
-  loadProfile(): Promise<{ username: string; nickname: string } | null>
+  loadProfile(): Promise<Profile | null>
 }
 const supabaseBackend: Backend = {
   fetchRow: () => fetchRowSb(),
@@ -180,7 +191,7 @@ async function fetchRowSb(): Promise<Row | null> {
   return (data as Row | null) ?? null
 }
 async function pushRowSb(p: Progress, base: number, force: boolean): Promise<number | null> {
-  const { data, error } = await sb().rpc('save_progress', { p_data: p, p_base_rev: base, p_force: force })
+  const { data, error } = await sb().rpc('save_progress', { p_data: p, p_base_rev: base, p_force: force, p_stats: rankStats(p) })
   if (error) throw error
   return (data as number | null) ?? null
 }
@@ -263,9 +274,16 @@ async function syncLoop() {
 }
 
 // ── 로그인·가입·로그아웃 ──
+interface Profile {
+  username: string
+  nickname: string
+  avatar?: string
+  title?: string
+  status_msg?: string
+}
 async function loadProfileSb() {
-  const { data } = await sb().from('profiles').select('username, nickname').eq('id', uid!).maybeSingle()
-  return data as { username: string; nickname: string } | null
+  const { data } = await sb().from('profiles').select('username, nickname, avatar, title, status_msg').eq('id', uid!).maybeSingle()
+  return data as Profile | null
 }
 
 /** 로그인한 계정을 이 기기 기록과 연결한다. 결과 안내 문구를 돌려준다 */
@@ -274,7 +292,7 @@ async function adopt(): Promise<string> {
   const meta = loadMeta()
   const local = loadProgress()
   const row = await fetchRow()
-  const who = { userId: uid!, username: prof?.username, nickname: prof?.nickname }
+  const who = { userId: uid!, username: prof?.username, nickname: prof?.nickname, avatar: prof?.avatar, title: prof?.title, status: prof?.status_msg }
 
   if (meta.userId === uid) {
     saveMeta({ ...meta, ...who })
@@ -360,11 +378,41 @@ export async function signOut(forceLeave = false): Promise<boolean> {
 }
 
 export async function changeNickname(nickname: string) {
-  const n = nickname.trim()
-  if (n.length < 1 || [...n].length > 12) throw new Error('닉네임은 1~12자예요.')
-  const { error } = await sb().from('profiles').update({ nickname: n }).eq('id', uid!)
+  const m = loadMeta()
+  await updateProfile({ nickname, avatar: m.avatar ?? 'i_laptop', title: m.title ?? '', status: m.status ?? '' })
+}
+
+/** 내 프로필(닉네임·프로필 이미지·대표 칭호·상태메시지) 저장 */
+export async function updateProfile(input: { nickname: string; avatar: string; title: string; status: string }) {
+  const nickname = input.nickname.trim()
+  const status = input.status.replace(/[\u0000-\u001f\u007f]/g, '').trim()
+  if (nickname.length < 1 || [...nickname].length > 12) throw new Error('닉네임은 1~12자예요.')
+  if ([...status].length > 40) throw new Error('상태메시지는 40자까지예요.')
+  if (!/^[a-z0-9_]{1,24}$/.test(input.avatar) || !/^[a-z0-9_]{0,24}$/.test(input.title)) throw new Error('선택한 값이 올바르지 않아요.')
+  const { error } = await sb().from('profiles').update({ nickname, avatar: input.avatar, title: input.title, status_msg: status }).eq('id', uid!)
   if (error) throw new Error(errText(error))
-  saveMeta({ ...loadMeta(), nickname: n })
+  saveMeta({ ...loadMeta(), nickname, avatar: input.avatar, title: input.title, status })
+}
+
+export interface RankRow {
+  user_id: string
+  nickname: string
+  avatar: string
+  title: string
+  status_msg: string
+  projects: number
+  office: number
+  teamwork: number
+  is_me: boolean
+}
+
+/** 랭킹 목록(로그인한 참여자만). 올리지 못한 내 기록이 있으면 먼저 올린다 */
+export async function fetchRanking(): Promise<RankRow[]> {
+  if (!enabled || !signedIn) throw new Error('로그인이 필요해요.')
+  if (loadMeta().dirty) await syncNow()
+  const { data, error } = await sb().rpc('get_ranking')
+  if (error) throw new Error(errText(error))
+  return ((data ?? []) as RankRow[]).map((r) => ({ ...r, projects: Number(r.projects), office: Number(r.office), teamwork: Number(r.teamwork) }))
 }
 
 export async function changePassword(password: string) {

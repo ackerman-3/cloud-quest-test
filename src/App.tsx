@@ -5,6 +5,7 @@ import { Sprite } from './components/Sprite'
 import { Office, EpisodeHeader, PixelArt } from './components/Office'
 import { Talk } from './components/Talk'
 import { Study } from './components/Study'
+import { Ranking } from './components/Ranking'
 import { ATTEND_GOLD, FRIENDS, GOLD, PRACTICE_RATE, type Episode } from './data/rewards'
 import { PROJECTS, LEVELS } from './data/projects'
 import { CHARS } from './data/characters'
@@ -41,6 +42,7 @@ type View =
   | { v: 'practiceResult'; id: string; x: Practice }
   | { v: 'result'; id: string; c: Completion; levelUp: number | null }
   | { v: 'episode'; friend: string; ep: Episode }
+  | { v: 'ranking' }
 
 export default function App() {
   const [progress, setP] = useState<Progress>(loadProgress)
@@ -303,7 +305,13 @@ export default function App() {
   return (
     <div className="with-nav">
       {toast}
-      {tab === 'office' ? (
+      {view.v === 'ranking' ? (
+        <Ranking
+          progress={progress}
+          onBack={() => goTab('home')}
+          onLogin={() => goTab('records')}
+        />
+      ) : tab === 'office' ? (
         <Office
           key={officeFriend}
           progress={progress}
@@ -321,6 +329,10 @@ export default function App() {
           section={tab}
           onTab={goTab}
           onGift={() => goTab('office')}
+          onRanking={() => {
+            setView({ v: 'ranking' })
+            window.scrollTo(0, 0)
+          }}
           progress={progress}
           setProgress={setProgress}
           session={session}

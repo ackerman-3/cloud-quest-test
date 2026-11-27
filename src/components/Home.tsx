@@ -1,7 +1,8 @@
 import { IS_TEST } from '../env'
 import { AccountCard } from './Account'
-import { useCloud } from '../cloud'
-import { useRef, useState } from 'react'
+import { fetchRanking, useCloud } from '../cloud'
+import { CATEGORIES } from '../data/ranking'
+import { useEffect, useRef, useState } from 'react'
 import { NoteSheet } from './Study'
 import { noteForProject } from '../data/notes'
 import { LEVELS, PROJECTS } from '../data/projects'
@@ -176,6 +177,7 @@ export function Home({
   onResume,
   onReset,
   onGift,
+  onRanking,
   section,
   onTab,
 }: {
@@ -187,10 +189,34 @@ export function Home({
   onResume: () => void
   onReset: () => void
   onGift: () => void
+  onRanking: () => void
   section: 'home' | 'projects' | 'records'
   onTab: (t: 'projects' | 'records' | 'study') => void
 }) {
   const cloud = useCloud()
+  // 라운지 랭킹 블록에 보여 줄 내 순위(로그인했을 때만, 홈을 열 때 한 번)
+  const [myRank, setMyRank] = useState<string | null>(null)
+  useEffect(() => {
+    if (section !== 'home' || !cloud.signedIn) return setMyRank(null)
+    let live = true
+    fetchRanking()
+      .then((rows) => {
+        const me = rows.find((r) => r.is_me)
+        if (!live || !me) return
+        const c = CATEGORIES[0]
+        const better = rows.filter((r) => r[c.id] > me[c.id]).length
+        setMyRank(me[c.id] > 0 ? `${c.name} ${better + 1}위` : `${rows.length}명 참여 중`)
+      })
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [section, cloud.signedIn])
+  // 홈에서는 페이지를 끌어내릴 때 드러나는 바탕을 상단 바 색으로
+  useEffect(() => {
+    document.documentElement.classList.toggle('home-dark', section === 'home')
+    return () => document.documentElement.classList.remove('home-dark')
+  }, [section])
   const [tab, setTab] = useState<1 | 2 | 3>(unlockedLevel(progress))
   // 난이도별 프로젝트 목록 페이지(한 페이지 5개). 난이도 탭마다 보던 페이지를 기억한다.
   const [pages, setPages] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0 })
@@ -308,6 +334,13 @@ export function Home({
               공부하러 가기 ↗
             </a>
           )}
+          <button className="lobby-rank" onClick={onRanking}>
+            <PixelArt name="m_gold" className="lobby-rank-art" />
+            <span>
+              <b>랭킹</b>
+              <small>{cloud.signedIn ? myRank ?? '내 순위 보기' : '참여자 순위'}</small>
+            </span>
+          </button>
           {LOBBY.map((m) => (
             <button key={m.id} className="lobby-mate" style={{ left: `${m.x}%`, bottom: `${m.y}%`, zIndex: 30 - Math.round(m.y) }} onClick={onGift} aria-label={`${CHARS[m.id].name} — 사무실로 가기`}>
               {newEpOf(m.id) && <i className="lobby-new">!</i>}
