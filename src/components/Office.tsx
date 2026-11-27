@@ -101,6 +101,66 @@ const slotSample = (s: Slot) => (s.kind === 'display' ? 'm_mug' : FURNITURE.find
 type Bubble = { lines: Line[]; i: number } | null
 type Pop = { text: string; key: number } | null
 
+/** 홈 화면용 작은 사무실 장면(보기 전용). 배치한 가구·기념품과 동료가 그대로 보인다 */
+export function OfficeMini({ progress, onOpen }: { progress: Progress; onOpen: () => void }) {
+  const placed = placedMap(progress)
+  const seen = new Set(progress.seenEpisodes ?? [])
+  const layers: { key: string; y: number; node: React.ReactNode }[] = []
+  const shelfKey = (() => {
+    const sh = SLOTS.find((x) => x.id === 'shelf')!
+    return sh.x + sh.y + artMeta(placed.shelf ?? 'shelf_basic').front
+  })()
+  for (const fx of FIXTURES) {
+    const m = artMeta(fx.art)
+    layers.push({
+      key: fx.art,
+      y: fx.x + fx.y + m.front,
+      node: (
+        <div key={fx.art} className="o-item" style={boxAt(fx.x, fx.y, fx.z ?? 0, m)}>
+          <ItemArt name={fx.art} className="o-art" />
+        </div>
+      ),
+    })
+  }
+  for (const s of SLOTS) {
+    const id = placed[s.id]
+    if (!id) continue
+    const art = itemArt(id)
+    const m = artMeta(art)
+    layers.push({
+      key: s.id,
+      y: s.floor ? -1e9 : s.kind === 'display' ? shelfKey + 0.5 : s.x + s.y + m.front,
+      node: (
+        <div key={s.id} className={`o-item ${s.floor ? 'floor' : ''}`} style={boxAt(s.x, s.y, s.z ?? 0, m)}>
+          <ItemArt name={art} className="o-art" />
+        </div>
+      ),
+    })
+  }
+  for (const m of DESKMATES) {
+    const fr = FRIENDS.find((x) => x.id === m.id)!
+    const newEp = fr.episodes.some((e) => teamwork(progress, m.id) >= e.need && !seen.has(e.id))
+    layers.push({
+      key: m.id,
+      y: m.x + m.y,
+      node: (
+        <div key={m.id} className="o-mate mini" style={boxAt(m.x, m.y, 0, { w: SPR_W, h: SPR_H, ax: SPR_W / 2, ay: SPR_H - 1 })}>
+          {newEp && <i className="mini-new">!</i>}
+          <Sprite cfg={CHARS[m.id]} flip={m.flip} className="o-sprite" />
+        </div>
+      ),
+    })
+  }
+  layers.sort((a, b) => a.y - b.y)
+  return (
+    <button className="office-mini" onClick={onOpen} aria-label="내 사무실로 가기" style={{ aspectRatio: `${ROOM.W} / ${ROOM.H}` }}>
+      <div className="o-world" style={{ backgroundImage: `url(${roomBg})` }}>
+        {layers.map((l) => l.node)}
+      </div>
+    </button>
+  )
+}
+
 export function Office({
   progress,
   setProgress,

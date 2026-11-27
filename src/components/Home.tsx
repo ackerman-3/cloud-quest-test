@@ -1,3 +1,6 @@
+import { IS_TEST } from '../env'
+import { AccountCard } from './Account'
+import { useCloud } from '../cloud'
 import { useRef, useState } from 'react'
 import { NoteSheet } from './Study'
 import { noteForProject } from '../data/notes'
@@ -6,11 +9,17 @@ import { CHARS } from '../data/characters'
 import { Sprite } from './Sprite'
 import { STUDY_URL } from '../data/links'
 import { FRIENDS, GOLD } from '../data/rewards'
-import officeImg from '../assets/office.webp'
 import { PixelArt } from './Office'
+import loungeImg from '../assets/lounge.webp'
 import { memento } from '../data/office'
 
 const PAGE_SIZE = 5
+/** 홈 라운지 장면의 동료 위치(장면 너비 %, 바닥에서 높이 %) */
+const LOBBY: { id: string; x: number; y: number; flip?: boolean }[] = [
+  { id: 'senior', x: 30, y: 21 },
+  { id: 'lead', x: 50, y: 14 },
+  { id: 'peer', x: 70, y: 19, flip: true },
+]
 import {
   affinity,
   bestStars,
@@ -171,7 +180,7 @@ export function Home({
   onTab,
 }: {
   progress: Progress
-  setProgress: (p: Progress) => void
+  setProgress: (p: Progress, opts?: { replace?: boolean }) => void
   session: Session | null
   onStart: (id: string) => void
   onPractice: (id: string, kind: PracticeKind) => void
@@ -179,8 +188,9 @@ export function Home({
   onReset: () => void
   onGift: () => void
   section: 'home' | 'projects' | 'records'
-  onTab: (t: 'projects' | 'records') => void
+  onTab: (t: 'projects' | 'records' | 'study') => void
 }) {
+  const cloud = useCloud()
   const [tab, setTab] = useState<1 | 2 | 3>(unlockedLevel(progress))
   // 난이도별 프로젝트 목록 페이지(한 페이지 5개). 난이도 탭마다 보던 페이지를 기억한다.
   const [pages, setPages] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0 })
@@ -189,6 +199,7 @@ export function Home({
   const sheetNote = noteOf ? noteForProject(noteOf) : undefined
   const [showBackup, setShowBackup] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [accountMsg, setAccountMsg] = useState<string | null>(null)
   const [askReset, setAskReset] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const unlocked = unlockedLevel(progress)
@@ -206,7 +217,6 @@ export function Home({
     .slice(0, 8)
   const doneIds = new Set(progress.completions.map((c) => c.projectId))
   const nextRec = [...PROJECTS].sort((a, b) => a.level - b.level).find((p) => p.level <= unlocked && !doneIds.has(p.id))
-  const newEp = FRIENDS.some((f) => f.episodes.some((e) => affinity(progress, f.id) >= e.need && !(progress.seenEpisodes ?? []).includes(e.id)))
 
   const download = () => {
     const blob = new Blob([exportJson(progress)], { type: 'application/json' })
@@ -231,8 +241,23 @@ export function Home({
     const p = importJson(text)
     if (!p) return setMsg('백업 형식이 올바르지 않아요.')
     if (!confirm(`완료 기록 ${p.completions.length}건으로 덮어쓸까요? 지금 기록은 사라져요.`)) return
-    setProgress(p)
+    setProgress(p, { replace: true })
     setMsg('복원했어요.')
+  }
+
+  const streakDays = streak(progress)
+  const xpPct = nextL ? Math.min(100, (doneProjects(progress, unlocked).length / nextL.need) * 100) : 100
+  const talkedFriends = FRIENDS.filter((f) => (progress.talks ?? []).some((t) => t.to === f.id && t.date === today())).length
+  const quests: { label: string; count: string; done: boolean; go?: () => void }[] = [
+    { label: '출석하기', count: progress.attendance?.includes(today()) ? '1/1' : '0/1', done: !!progress.attendance?.includes(today()) },
+    { label: `프로젝트 ${goal}건 완료`, count: `${Math.min(tCount, goal)}/${goal}`, done: tCount >= goal, go: () => (nextRec ? onStart(nextRec.id) : onTab('projects')) },
+    { label: '동료와 이야기하기', count: `${talkedFriends}/${FRIENDS.length}`, done: talkedFriends >= FRIENDS.length, go: onGift },
+  ]
+  const questsDone = quests.filter((q) => q.done).length
+  const mission = sessionProject ?? nextRec
+  const newEpOf = (id: string) => {
+    const f = FRIENDS.find((x) => x.id === id)
+    return !!f?.episodes.some((e) => affinity(progress, id) >= e.need && !(progress.seenEpisodes ?? []).includes(e.id))
   }
 
   const daysSinceBackup = progress.lastBackup ? Math.floor((Date.now() - progress.lastBackup) / 86400000) : null
@@ -242,112 +267,128 @@ export function Home({
       {sheetNote && <NoteSheet note={sheetNote} onClose={() => setNoteOf(null)} />}
       {section === 'home' && (
         <>
-      <section className="hero">
-        <img src={officeImg} alt="" className="hero-bg" />
-        <div className="hero-shade" />
-        <div className="hero-inner">
-          <div className="brand">CLOUD ARCHITECT QUEST</div>
-          <h1>오늘도 고객 문제를 해결해 볼까요?</h1>
-          <div className="rank">
-            <span className="pill">{lvl.name}</span>
-            {nextL ? (
-              <small>
-                {nextL.name} 승급까지 {lvl.diff} 프로젝트 {Math.max(0, nextNeed)}건
-              </small>
-            ) : (
-              <small>최고 등급 달성</small>
-            )}
-          </div>
-          <div className="hero-actions">
-            <button className="gold-pill big" onClick={onGift} aria-label="보유 골드, 사무실로 이동">
-              💰 {goldBalance(progress).toLocaleString('ko-KR')}
-              {GOLD}
-            </button>
-            {STUDY_URL && (
-              <a className="study-link" href={STUDY_URL} target="_blank" rel="noopener noreferrer">
-                📚 공부하러 가기
-              </a>
-            )}
-          </div>
-        </div>
-        <div className="hero-lead">
-          <Sprite cfg={CHARS.lead} className="hero-sprite" />
-        </div>
-      </section>
-
-      <section className="stats">
-        <div className="stat main">
-          <small>오늘 완료한 프로젝트</small>
-          <div className="big">
-            {tCount}
-            <span>/ {goal}</span>
-          </div>
-          <div className="bar">
-            <i style={{ width: `${Math.min(100, (tCount / goal) * 100)}%` }} />
-          </div>
-          <small className="muted">{tCount >= goal ? '오늘 목표 달성! 🎉' : `목표까지 ${goal - tCount}건`}</small>
-        </div>
-        <div className="stat">
-          <small>연속 학습</small>
-          <div className="big">
-            {streak(progress)}
-            <span>일</span>
-          </div>
-        </div>
-        <div className="stat">
-          <small>완료한 프로젝트</small>
-          <div className="big">
-            {doneProjects(progress).length}
-            <span>/ {PROJECTS.length}</span>
-          </div>
-        </div>
-      </section>
-
-      {sessionProject && (
-        <button className="resume" onClick={onResume}>
-          <span>이어하기</span>
-          <b>{sessionProject.title}</b>
-          <span>→</span>
-        </button>
-      )}
-
-      {nextRec && (
-        <button className="next-rec" onClick={() => onStart(nextRec.id)}>
-          <span className="nr-kicker">다음 추천 · {LEVELS[nextRec.level - 1].name.split(' ')[0]}</span>
-          <b>{nextRec.title}</b>
-          <small>
-            {nextRec.org} · {nextRec.topics.slice(0, 3).join(' · ')}
-          </small>
-          <span className="nr-go">시작 →</span>
-        </button>
-      )}
-
-      <section className="card">
-        <div className="card-head">
-          <h2>승급 현황</h2>
-          <button className="ghost small" onClick={() => onTab('projects')}>
-            프로젝트 보기
-          </button>
-        </div>
-        <LevelBars progress={progress} />
-      </section>
-
-      <RankRewards progress={progress} onOpen={onGift} />
-
-      {newEp && (
-        <button className="gift-entry" onClick={onGift}>
-          <span className="ge-icon">💌</span>
-          <span className="ge-text">
-            <b>새 동료 에피소드가 열려 있어요</b>
-            <small>사무실 탭에서 동료를 눌러 확인해 보세요</small>
+      <header className="hud">
+        <button className="hud-me" onClick={() => onTab('records')} aria-label="내 계정과 기록">
+          <span className="hud-avatar">{cloud.signedIn ? (cloud.nickname ?? cloud.username ?? '?').slice(0, 1) : <PixelArt name="i_laptop" />}</span>
+          <span className="hud-who">
+            <b>
+              {IS_TEST && <em className="test-badge">테스트</em>}
+              {cloud.signedIn ? cloud.nickname ?? cloud.username : lvl.name}
+            </b>
+            <span className="hud-xp">
+              <i style={{ width: `${xpPct}%` }} />
+              <small>{nextL ? `${nextL.name.split(' ')[0]}까지 ${Math.max(0, nextNeed)}건` : '최고 직급'}</small>
+            </span>
           </span>
-          <span className="ge-new">NEW</span>
         </button>
-      )}
+        <button className="hud-chip" onClick={() => onTab('records')} aria-label={`연속 학습 ${streakDays}일`}>
+          <span aria-hidden>🔥</span>
+          {streakDays}일
+        </button>
+        <button className="hud-chip gold" onClick={onGift} aria-label="보유 골드, 사무실로 이동">
+          <PixelArt name="i_coin" className="hud-coin" />
+          {goldBalance(progress).toLocaleString('ko-KR')}
+        </button>
+      </header>
+
+      <section className="lobby">
+        <div className="lobby-scene">
+          <img src={loungeImg} alt="" className="lobby-bg" />
+          <div className="lobby-goal" aria-label={`오늘의 목표 프로젝트 ${Math.min(tCount, goal)}/${goal}건`}>
+            <span>오늘의 목표</span>
+            <b>
+              {Math.min(tCount, goal)}/{goal}
+            </b>
+            <i>
+              <em style={{ width: `${Math.min(100, (tCount / goal) * 100)}%` }} />
+            </i>
+          </div>
+          {STUDY_URL && (
+            <a className="lobby-study" href={STUDY_URL} target="_blank" rel="noopener noreferrer">
+              공부하러 가기 ↗
+            </a>
+          )}
+          {LOBBY.map((m) => (
+            <button key={m.id} className="lobby-mate" style={{ left: `${m.x}%`, bottom: `${m.y}%`, zIndex: 30 - Math.round(m.y) }} onClick={onGift} aria-label={`${CHARS[m.id].name} — 사무실로 가기`}>
+              {newEpOf(m.id) && <i className="lobby-new">!</i>}
+              <Sprite cfg={CHARS[m.id]} flip={m.flip} className="lobby-sprite" />
+            </button>
+          ))}
+        </div>
+
+        <div className="mission">
+          {mission ? (
+            <>
+              <div className="mission-head">
+                <span className="mission-client">
+                  <Sprite cfg={CHARS[mission.client]} talking={false} className="mission-client-sprite" />
+                </span>
+                <div className="mission-text">
+                  <small className="mission-kicker">
+                    {sessionProject ? '진행 중인 의뢰' : '다음 의뢰'} · {LEVELS[mission.level - 1].name.split(' ')[0]}
+                  </small>
+                  <h2>{mission.title}</h2>
+                  <p>의뢰처 {mission.org}</p>
+                </div>
+              </div>
+              <ul className="mission-tags" aria-label="핵심 개념">
+                {mission.topics.slice(0, 3).map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+              <div className="mission-actions">
+                {noteForProject(mission.id) && (
+                  <button className="mission-note" onClick={() => setNoteOf(mission.id)}>
+                    개념 보기
+                  </button>
+                )}
+                <button className="play-btn" onClick={sessionProject ? onResume : () => onStart(mission.id)}>
+                  {sessionProject ? '이어하기' : '프로젝트 시작'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mission-done">
+              <h2>모든 의뢰를 마쳤어요</h2>
+              <p>복습으로 별 3개에 도전해 보세요.</p>
+              <button className="play-btn" onClick={() => onTab('projects')}>
+                프로젝트 목록
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="card quests">
+        <div className="card-head">
+          <h2>오늘의 할 일</h2>
+          <small className="muted">{questsDone}/{quests.length}</small>
+        </div>
+        <ul>
+          {quests.map((q) => (
+            <li key={q.label} className={q.done ? 'done' : ''}>
+              <span className="q-check" aria-hidden>
+                {q.done ? '✓' : ''}
+              </span>
+              <span className="q-label">{q.label}</span>
+              <small className="q-count">{q.count}</small>
+              {!q.done && q.go && (
+                <button className="ghost small" onClick={q.go}>
+                  가기
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div id="rank-rewards">
+        <RankRewards progress={progress} onOpen={onGift} />
+      </div>
 
       <section className="card">
         <div className="card-head">
-          <h2>최근 학습</h2>
+          <h2>최근 7일</h2>
           <button className="ghost small" onClick={() => onTab('records')}>
             기록 보기
           </button>
@@ -454,6 +495,8 @@ export function Home({
 
       {section === 'records' && (
         <>
+      <AccountCard onMessage={setAccountMsg} />
+      {accountMsg && <p className="ok-note account-msg">{accountMsg}</p>}
       <section className="card">
         <h2>학습 달력</h2>
         <Calendar p={progress} />
@@ -498,7 +541,7 @@ export function Home({
             {showBackup ? '닫기' : '열기'}
           </button>
         </div>
-        {daysSinceBackup === null || daysSinceBackup >= 7 ? (
+        {!cloud.signedIn && (daysSinceBackup === null || daysSinceBackup >= 7) ? (
           <p className="warn-note">
             {daysSinceBackup === null ? '아직 백업한 적이 없어요.' : `마지막 백업이 ${daysSinceBackup}일 전이에요.`} 기록은 이 기기의 브라우저에만 저장돼요.
           </p>
@@ -568,7 +611,7 @@ export function Home({
               )}
             </div>
             <ul className="notes">
-              <li>기록은 이 기기·이 브라우저의 저장소(localStorage)에 저장돼요. 서버에는 저장되지 않아요.</li>
+              <li>{cloud.signedIn ? '기록은 이 기기와 로그인한 계정에 함께 저장돼요.' : '기록은 이 기기·이 브라우저의 저장소(localStorage)에 저장돼요. 로그인하지 않으면 이 기기에만 있어요.'}</li>
               <li>홈 화면 아이콘을 삭제하면 기록도 함께 지워져요. 삭제 전에 꼭 백업하세요.</li>
               <li>Safari에서 바로 쓰는 것과 홈 화면 앱은 저장소가 따로예요. 홈 화면 앱으로 쓰는 것을 권장해요.</li>
             </ul>

@@ -2678,3 +2678,98 @@ details summary {
 .choice-list button { text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 12px; border: 2px solid #2f6bff; background: #f2f6ff; color: #13213c; font-weight: 800; font-size: 15px; box-shadow: 0 3px 0 #c9d8ff; }
 .choice-list button::before { content: '▶ '; color: #2f6bff; font-size: 12px; }
 .choice-list button:active { transform: translateY(2px); box-shadow: 0 1px 0 #c9d8ff; }
+
+/* ── 계정 (2026-11-27) ── */
+.account-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(255, 255, 255, 0.6); font-size: 13px; font-weight: 700; color: var(--navy); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); }
+.account-chip.on { background: #e9f6ef; border-color: #bfe3cf; color: #165c3c; }
+.account-chip-name { max-width: 9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-card .account-lead { margin: 0 0 12px; color: var(--sub); font-size: 14px; line-height: 1.55; }
+.account-me { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.account-avatar { width: 44px; height: 44px; border-radius: 12px; background: var(--navy2); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 18px; }
+.account-nick { font-size: 16px; overflow-wrap: anywhere; }
+.account-card .muted.small, .auth-foot { font-size: 12px; }
+.sync-line { font-size: 13px; color: #165c3c; background: #eef8f2; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+.sync-line.bad { color: #8a3a12; background: #fdf1e7; }
+.account-msg { margin: 0; }
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; }
+.auth-form label small { font-weight: 400; }
+.auth-form input { font: inherit; font-size: 16px; font-weight: 400; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+.auth-form input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.auth-err { margin: 0; color: var(--bad); font-size: 14px; }
+.auth-foot { margin: 0; line-height: 1.7; }
+button.linkish { border: 0; background: none; padding: 0; min-height: 0; color: var(--accent); font-weight: 700; font-size: inherit; text-decoration: underline; }
+@media (min-width: 900px) { .auth-sheet { max-width: 460px; border-radius: 20px; margin-bottom: 10vh; } .sheet-back:has(.auth-sheet) { align-items: center; } }
+.demo-note { margin: 0 0 12px; padding: 8px 10px; border-radius: 8px; background: #fff6d6; color: #7a5200; font-size: 13px; line-height: 1.5; }
+
+/* ── 홈: 게임 홈 화면형 (2026-11-27) ── */
+.home > .hud { position: sticky; top: 0; z-index: 30; margin: -12px -12px 0; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; display: flex; align-items: center; gap: 8px; background: #16233f; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.hud button { min-height: 0; border: 0; color: #fff; }
+.hud-me { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0; background: transparent; text-align: left; }
+.hud-avatar { flex: none; width: 42px; height: 42px; border-radius: 10px; display: grid; place-items: center; background: #2f4a80; border: 2px solid #8fb2ff; font-weight: 900; font-size: 18px; color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); }
+.hud-avatar svg { width: 30px; height: 30px; image-rendering: pixelated; }
+.hud-who { min-width: 0; display: grid; gap: 4px; }
+.hud-who b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-xp { position: relative; display: block; height: 16px; border-radius: 99px; background: #0b1428; border: 1.5px solid #3a5389; overflow: hidden; min-width: 130px; }
+.hud-xp i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #3fd28b, #9be86b); border-radius: 99px; }
+.hud-xp small { position: relative; display: block; text-align: center; font-size: 10.5px; line-height: 13px; font-weight: 800; color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+.hud-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 8px; background: #0b1428 !important; border: 1.5px solid #3a5389 !important; font-weight: 800; font-size: 13px; white-space: nowrap; }
+.hud-chip.gold { color: #ffe27a; }
+.hud-coin { width: 16px; height: 16px; image-rendering: pixelated; }
+
+.quests ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.quests li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: #f6f8fc; border: 1.5px solid #e3e8f2; }
+.quests li.done { background: #f1fbf7; border-color: #a8e6d3; }
+.q-check { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #b8c3d6; display: grid; place-items: center; font-weight: 900; font-size: 13px; color: #fff; }
+.quests li.done .q-check { background: #1f9d63; border-color: #1f9d63; }
+.q-label { flex: 1; font-weight: 700; font-size: 14px; }
+.quests li.done .q-label { color: var(--sub); }
+.q-count { font-weight: 800; color: var(--sub); }
+.quests li button { min-height: 30px; padding: 4px 10px; }
+#rank-rewards { scroll-margin-top: 72px; }
+
+/* 하단 메뉴: 가운데 홈 강조 */
+.bottom-nav button.bn-center { overflow: visible; }
+.bottom-nav button.bn-center .bn-icon { width: 54px; height: 54px; margin-top: -24px; display: grid; place-items: center; border-radius: 50%; background: #ffd84d; border: 3px solid #16233f; box-shadow: 0 4px 0 #16233f; font-size: 26px; filter: none; opacity: 1; }
+.bottom-nav button.bn-center.on .bn-icon { transform: translateY(-2px); }
+.bottom-nav button.bn-center.on::after { display: none; }
+.bottom-nav button.bn-center:not(.on) .bn-icon { background: #fff2bf; }
+
+/* 홈 라운지 + 의뢰 카드 */
+.lobby { margin: -12px -12px 0; display: grid; }
+.lobby-scene { position: relative; height: clamp(260px, 42vh, 380px); overflow: hidden; background: #cfe3f7; }
+.lobby-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 50%; image-rendering: pixelated; }
+.lobby-scene::after { content: ''; position: absolute; inset: auto 0 0 0; height: 38%; background: linear-gradient(transparent, rgba(238, 241, 246, 0.85)); pointer-events: none; }
+.lobby-goal { position: absolute; z-index: 20; top: 12px; left: 12px; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 99px; background: rgba(19, 33, 60, 0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #fff; font-size: 12.5px; }
+.lobby-goal span { opacity: 0.85; font-weight: 600; }
+.lobby-goal b { font-weight: 800; }
+.lobby-goal i { width: 56px; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
+.lobby-goal em { display: block; height: 100%; background: #ffd84d; border-radius: 99px; }
+.lobby-mate { position: absolute; z-index: 5; transform: translateX(-50%); padding: 0; border: 0; background: transparent; min-height: 0; }
+.lobby-mate::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: 1px; height: 7px; border-radius: 50%; background: rgba(19, 33, 60, 0.22); z-index: -1; }
+.lobby-sprite { display: block; width: 58px; height: 92px; image-rendering: pixelated; }
+.lobby-new { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 18px; height: 18px; border-radius: 50%; background: #e5484d; color: #fff; font-style: normal; font-size: 11px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; }
+.mission { position: relative; z-index: 2; margin: -34px 12px 0; padding: 16px; border-radius: 18px; background: #fff; box-shadow: 0 10px 28px rgba(19, 33, 60, 0.12), 0 1px 0 rgba(19, 33, 60, 0.04); display: grid; gap: 12px; }
+.mission-head { display: flex; align-items: center; gap: 12px; }
+.mission-client { flex: none; width: 56px; height: 56px; border-radius: 14px; background: #eef3fb; overflow: hidden; display: grid; place-items: start center; }
+.mission-client-sprite { width: 44px; height: 70px; margin-top: 4px; image-rendering: pixelated; }
+.mission-text { min-width: 0; }
+.mission-kicker { display: block; font-size: 12px; font-weight: 700; color: #2f6bff; }
+.mission h2 { margin: 2px 0 0; font-size: 19px; line-height: 1.3; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; }
+.mission-text p { margin: 2px 0 0; font-size: 13px; color: var(--sub); }
+.mission-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.mission-tags li { padding: 4px 10px; border-radius: 99px; background: #f1f4f9; color: #3b4a63; font-size: 12.5px; font-weight: 600; }
+.mission-actions { display: flex; gap: 8px; }
+.mission-note { flex: none; min-height: 52px; padding: 0 16px; border-radius: 14px; background: #f1f4f9; border: 0; font-weight: 700; color: var(--navy); }
+.play-btn { flex: 1; min-height: 52px; border-radius: 14px; border: 0; background: #ffd84d; color: #13213c; font-size: 17px; font-weight: 800; box-shadow: 0 3px 0 #e2b62e; }
+.play-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e2b62e; }
+.mission-done { display: grid; gap: 6px; text-align: center; }
+.mission-done h2 { margin: 0; }
+.mission-done p { margin: 0 0 6px; color: var(--sub); }
+@media (min-width: 700px) {
+  .lobby-scene { height: 420px; border-radius: 0 0 20px 20px; }
+  .lobby-sprite { width: 72px; height: 114px; }
+  .mission { max-width: 620px; width: calc(100% - 24px); margin: -48px auto 0; }
+}
+.lobby-study { position: absolute; z-index: 20; top: 12px; right: 12px; padding: 7px 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.88); color: var(--navy); font-size: 12.5px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(19, 33, 60, 0.12); }
+.test-badge { font-style: normal; display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 6px; background: #e5484d; color: #fff; font-size: 11px; font-weight: 800; vertical-align: 2px; }

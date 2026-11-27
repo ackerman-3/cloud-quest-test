@@ -16,7 +16,7 @@
 | 항목 | 내용 |
 |---|---|
 | 프레임워크 | **Vite + React + TypeScript** (Expo 아님). 구성도 편집기·드래그 구현이 웹 표준 DOM으로 더 단순하기 때문 |
-| 서버 | 없음. 순수 정적 웹앱. 인증키 없음 |
+| 서버 | 선택: Supabase(계정·기록 동기화, 2026-11-27~). `src/data/server.ts`가 비어 있으면 서버 없이 순수 정적 웹앱으로 동작 |
 | 호스팅 | **GitHub Pages** (공개 저장소 `cloud-quest`) → `https://<아이디>.github.io/cloud-quest/` |
 | 배포 | `git-save.bat`로 push → GitHub Actions(`.github/workflows/deploy.yml`)가 자동 빌드·배포 |
 | 아이폰 | Safari로 주소 열기 → 공유 → 홈 화면에 추가 |
@@ -166,3 +166,32 @@ scripts/check-answers.ts  정답 자동 점검
 - 완료 = 끝까지 봄(Progress.seenEpisodes, 예전 기록 그대로). 중간에 "사무실로"로 나가면 기록 안 함. 다시 보기 가능.
 - 보상: Episode.reward(사진·소품·액자) → office.ts가 MEMENTOS에 자동 추가(episode 필드), store `earnedMementos`가 seenEpisodes로 판정. 그림은 office-art.py의 ep_* (photo·cert·notebook·badge 함수).
 - 동료 개성(Friend.quirk, 화면에는 표시하지 않고 대사·에피소드 작성 기준으로만 씀): 케이=핸드드립 커피에 지나치게 진심(저울·온도계, 원두 이야기가 길어짐, 설계 노트에 원두 기록), 팀장답게 업무·기본기는 유능하게(기본적인 것을 못하는 설정 금지) / 변의주=라우팅 전문가인데 길치, 매운 것 못 먹음, 다육이에 서비스 이름 / 니콜라스=뭐든 자동화하지만 자기 알람은 못 맞춤, 헬스·고단백 요리(결과는 종종 장애).
+
+## 11. 계정·서버 동기화 (2026-11-27)
+- 목적: 여러 사람이 각자 계정으로 기록을 쌓고(다음 단계: 명예의 전당 랭킹), 여러 기기에서 이어서 하기.
+- 백엔드: Supabase(무료). 설정 절차는 `SERVER-SETUP.md`. 서버 파일은 `supabase/schema.sql`(테이블·RLS·함수), `supabase/functions/signup/index.ts`(가입 Edge Function).
+- 로그인: 아이디+비밀번호. 아이디를 `아이디@users.cloud-quest.invalid` 이메일로 바꿔 Supabase 이메일 로그인 사용(메일 발송 없음). 가입은 초대 코드(Edge Function Secret `INVITE_CODE`)를 확인하는 `signup` 함수로만 가능(대시보드에서 일반 가입 끔).
+- 아이디: 영문 소문자·숫자·_ 4~16자, 변경 불가. 닉네임 1~12자(변경 가능). 비밀번호 6자 이상(Supabase 인증 서버 최소값). 비밀번호 분실 시 관리자가 SQL로 재설정.
+- 로그인은 선택. 연결 정보: `src/data/server.ts`(URL·Publishable 키, 비어 있으면 계정 UI 숨김). secret/service_role 키는 앱에 넣지 않음.
+- 앱 코드
+  - `src/cloud.ts`: 로그인·가입·로그아웃·닉네임/비밀번호 변경, 동기화, 화면 상태(`useCloud`). 저장 키 `cloud-quest-auth`(세션), `cloud-quest-account-v1`(이 기기 기록의 주인·서버 rev·업로드 대기). 기존 `cloud-quest-progress-v1`은 그대로.
+  - `src/merge.ts`: 두 기기 기록 합치기(목록은 합집합, 완료 수·다시 하기 보상 표시는 시간순 재계산, 하루 목표·배치는 이 기기 값).
+  - `src/components/Account.tsx`: 기록 탭 맨 위 계정 카드 + 로그인/가입/닉네임/비밀번호 시트, 홈 상단 계정 칩.
+  - App `setProgress(p, { replace })`: 저장할 때마다 `noteLocalChange` 호출 → 2.5초 뒤 업로드. 초기화·백업 복원은 `replace: true`로 서버 기록을 통째로 교체(합치면서 되살아나지 않게).
+- 동기화 규칙: 서버 `progress.rev`로 충돌 감지(`save_progress(data, base_rev, force)`가 rev가 다르면 null). 이 기기에 올릴 것이 없으면 서버 기록을 받아 오고, 있으면 합쳐서 올림. 처음 로그인: 서버 기록 없으면 기기 기록 업로드, 기기가 비어 있으면(출석만 있어도 빈 것으로 봄) 서버 기록 사용, 둘 다 있으면 합침. 다른 계정으로 로그인하면 이전 계정의 기기 기록은 `cloud-quest-progress-other-account`에 따로 보관하고 새 계정 기록으로 교체. 로그아웃해도 기기 기록은 남고, 로그아웃 중 기록은 다시 로그인하면 올라감.
+- 점검: `npx tsx scripts/test-sync.ts`(가짜 서버·두 기기로 10개 상황 점검). GitHub Actions에도 넣으려면 `.github/workflows/deploy.yml`의 check-answers 줄 아래에 `- run: npx tsx scripts/test-sync.ts` 추가(보호 파일이라 직접 수정 필요).
+- 다음 단계: 명예의 전당(3분야 랭킹: 프로젝트 완료 / 사무실 꾸미기 / 동료 팀워크). 랭킹은 서버 `progress` 기록에서 집계하는 함수(security definer, 공개 필드만 반환)로 만들 예정.
+
+## 12. 메인 홈 개편 (2026-11-27)
+- 상단 고정 HUD(프로필·직급·다음 승급까지 막대 / 🔥 연속 학습 / 골드). 플레이어 얼굴은 넣지 않음(닉네임 첫 글자 또는 노트북 픽셀 아이콘).
+- 라운지 장면(`assets/lounge.webp`, Home.tsx `LOBBY` 좌표로 동료 3명 배치, 누르면 사무실, 새 에피소드면 !) + 왼쪽 위 오늘의 목표, 오른쪽 위 공부하러 가기.
+- 장면 아래 겹쳐 올린 의뢰 카드(`.mission`): 의뢰인 초상, 다음/진행 중 의뢰·직급, 제목, 의뢰처, 핵심 개념 태그, [개념 보기] [프로젝트 시작/이어하기].
+- 그 아래 오늘의 할 일(출석·프로젝트 목표·동료와 이야기, 보상 없음) → 승급 보상 → 최근 7일.
+- 사용자 피드백으로 뺀 것: 하단 메뉴와 겹치는 좌우 바로가기, 외곽선 큰 제목과 "의뢰처 · 개념 · 개념" 한 줄 문구, 아이소메트릭 미니 사무실(Office.tsx `OfficeMini`는 남아 있으나 미사용).
+- 하단 메뉴 순서: 프로젝트 · 학습 · 홈(가운데, 노란 원형 `.bn-center`) · 사무실 · 기록.
+
+## 13. 테스트 페이지 (2026-11-27)
+- 테스트용 공개 저장소 `cloud-quest-test`(같은 GitHub 계정)에 `git-test.bat`으로 올림 → `https://<아이디>.github.io/cloud-quest-test/`. 같은 `deploy.yml`이 그 저장소에서도 빌드·배포.
+- `git-test.bat`: 처음 실행 때 테스트 저장소 주소를 받아 `test` 원격으로 등록 → 변경을 커밋하고 `git push -f test HEAD:main`. 실제 저장소(origin)에는 올리지 않음. 확인 후 `git-save.bat`을 실행하면 같은 커밋이 실제 앱으로 올라감.
+- `src/env.ts`: 주소에 `-test/`가 있으면 테스트 모드. 같은 계정의 GitHub Pages는 localStorage를 공유하므로 모든 저장 키 앞에 `test:`를 붙여 실제 기록과 분리(진행 기록·이어하기·계정 메타·로그인 세션·업데이트 시도). 실제 주소의 키 이름은 그대로. 홈 상단에 빨간 "테스트" 표시.
+- 서버(Supabase)는 실제와 같은 프로젝트를 씀. 테스트 페이지에서는 테스트용 계정을 따로 만들어 쓰는 것을 권장(같은 계정으로 로그인하면 테스트에서 한 기록이 계정 기록에 합쳐짐).

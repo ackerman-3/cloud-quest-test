@@ -1,11 +1,12 @@
 import { PROJECTS, LEVELS } from './data/projects'
+import { KEY_PREFIX } from './env'
 import { ATTEND_GOLD, FRIENDS, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
 import { DEFAULT_PLACED, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS } from './data/office'
 import type { Design } from './types'
 
 // ⚠️ 저장 키 이름과 형식을 바꾸면 기존 기록이 사라질 수 있습니다.
-export const PROGRESS_KEY = 'cloud-quest-progress-v1'
-export const SESSION_KEY = 'cloud-quest-session-v1'
+export const PROGRESS_KEY = KEY_PREFIX + 'cloud-quest-progress-v1'
+export const SESSION_KEY = KEY_PREFIX + 'cloud-quest-session-v1'
 
 export interface Completion {
   projectId: string
@@ -217,19 +218,50 @@ export function importJson(text: string): Progress | null {
   return null
 }
 
-/** 완료 기록 하나를 지우고, 남은 기록의 "완료 수 반영(counted)"·"복습(review)" 표시를 다시 계산한다 */
-export function deleteCompletion(p: Progress, ts: number): Progress {
-  const rest = p.completions.filter((c) => c.ts !== ts).sort((a, b) => a.ts - b.ts)
+/** 완료 기록의 "완료 수 반영(counted)"·"복습(review)" 표시를 시간순으로 다시 계산한다 */
+export function normalizeCompletions(list: Completion[]): Completion[] {
+  const rest = [...list].sort((a, b) => a.ts - b.ts)
   const seenDay = new Set<string>()
-  const completions = rest.map((c) => {
+  return rest.map((c) => {
     const key = `${c.projectId}|${c.date}`
     const counted = !seenDay.has(key)
     seenDay.add(key)
     const review = rest.some((x) => x.projectId === c.projectId && x.date < c.date)
     return { ...c, counted, review }
   })
-  return { ...p, completions }
 }
+
+/** 다시 하기 기록의 보상 반영(counted)을 다시 계산한다(같은 날 같은 프로젝트·같은 종류는 1회) */
+export function normalizePractices(list: Practice[]): Practice[] {
+  const seen = new Set<string>()
+  return [...list]
+    .sort((a, b) => a.ts - b.ts)
+    .map((x) => {
+      const key = `${x.projectId}|${x.kind}|${x.date}`
+      const counted = !seen.has(key)
+      seen.add(key)
+      return { ...x, counted }
+    })
+}
+
+/** 완료 기록 하나를 지우고, 남은 기록의 "완료 수 반영(counted)"·"복습(review)" 표시를 다시 계산한다 */
+export function deleteCompletion(p: Progress, ts: number): Progress {
+  return { ...p, completions: normalizeCompletions(p.completions.filter((c) => c.ts !== ts)) }
+}
+
+/** 플레이 기록이 없는 처음 상태인지(앱을 열면 생기는 출석·하루 목표 설정만 있는 경우 포함) */
+export function isEmptyProgress(p: Progress) {
+  return (
+    p.completions.length === 0 &&
+    !p.gifts?.length &&
+    !p.talks?.length &&
+    !p.purchases?.length &&
+    !p.seenEpisodes?.length &&
+    !p.practices?.length
+  )
+}
+
+export const emptyProgress = empty
 
 // ── 골드·출석·선물 ──
 // 골드는 따로 저장하지 않고 기록(완료·출석·선물)에서 계산한다. 완료 기록을 지우면 그 보상도 함께 빠진다.

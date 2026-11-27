@@ -10,6 +10,7 @@ import { PROJECTS, LEVELS } from './data/projects'
 import { CHARS } from './data/characters'
 import { STUDY_URL } from './data/links'
 import { applyUpdate, checkUpdate } from './update'
+import { initCloud, noteLocalChange, syncNow } from './cloud'
 import {
   affinity,
   checkIn,
@@ -55,10 +56,30 @@ export default function App() {
     window.scrollTo(0, 0)
   }
 
-  const setProgress = (p: Progress) => {
+  /** 기록 저장. replace는 초기화·복원처럼 서버 기록까지 통째로 바꿀 때 */
+  const setProgress = (p: Progress, opts?: { replace?: boolean }) => {
     setP(p)
     saveProgress(p)
+    noteLocalChange(opts?.replace)
   }
+
+  // 계정·서버 동기화: 서버에서 받아 온 기록을 화면에 반영하고, 앱이 다시 보일 때 서버와 맞춘다
+  useEffect(() => {
+    initCloud({
+      apply: (p) => setP(p),
+      switched: () => {
+        saveSession(null)
+        setSession(null)
+      },
+    })
+    const onVis = () => document.visibilityState === 'visible' && void syncNow()
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('online', onVis)
+    return () => {
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('online', onVis)
+    }
+  }, [])
 
   useEffect(() => {
     // 브라우저가 저장소를 임의로 비우지 않도록 요청(지원하는 브라우저만)
@@ -309,21 +330,21 @@ export default function App() {
           onReset={() => {
             saveSession(null)
             setSession(null)
-            setProgress({ version: 1, completions: [], dailyGoal: progress.dailyGoal })
+            setProgress({ version: 1, completions: [], dailyGoal: progress.dailyGoal }, { replace: true })
           }}
         />
       )}
       <nav className="bottom-nav">
         {(
           [
-            ['home', '🏠', '홈'],
             ['projects', '📋', '프로젝트'],
             ['study', '📘', '학습'],
+            ['home', '🏠', '홈'],
             ['office', 'desk', '사무실'],
             ['records', '📅', '기록'],
           ] as const
         ).map(([id, icon, label]) => (
-          <button key={id} className={tab === id ? 'on' : ''} onClick={() => goTab(id)} aria-current={tab === id ? 'page' : undefined}>
+          <button key={id} className={`${tab === id ? 'on' : ''} ${id === 'home' ? 'bn-center' : ''}`} onClick={() => goTab(id)} aria-current={tab === id ? 'page' : undefined}>
             <span className="bn-icon">{icon === 'desk' ? <PixelArt name="icon_desk" className="bn-pix" /> : icon}</span>
             <span>{label}</span>
             {id === 'office' && newEp && <i className="bn-dot" />}
