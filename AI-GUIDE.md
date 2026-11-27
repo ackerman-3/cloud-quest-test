@@ -238,6 +238,8 @@ scripts/check-answers.ts  정답 자동 점검
   - `voice`: 그 자리 프로젝트 대사를 그 사람 말투로 다시 쓴 것(내용은 같게). 키는 `lineKey()` 형식, 원문 목록은 `npx tsx scripts/seat-lines.ts lead|senior|peer`. 없는 줄은 원래 대사.
   - 추가 동료(프로젝트에 안 나오는 사람)는 ALTS 없이 CHARS + friends2.ts + 보상 그림만.
   - 에피소드 원칙: 회사 일상 코미디 + 가벼운 AWS 개념. 연애 요소 금지, "나" 대사 최소화, 실존 작품 캐릭터 외형·설정 사용 금지.
-- 현재 교체 인물: 리바희(`bahee`, 팀장 자리). 짧고 담담한 반말(무례하지 않게), 깐깐하고 청결에 까다롭지만 챙겨 줌. 외형: 검은 가운데 가르마 앞머리(`curtain`), 가는 눈(`narrow`), 창백한 피부. 대사 `voice-bahee.ts`(팀장 대사 64줄 전부). 외형 옵션 `curtain` 머리·`narrow`·`rolled`·`watch`·`mug`·`tired`·`brow`(pixel.ts)는 리바희 때 추가.
+- 현재 교체 인물: 이예거(`yeager`, 동기 자리) — 행동파·승부욕·동료애, 팀 앞에선 직설적 존댓말·동기에겐 반말. 대사 `voice-yeager.ts`(동기 대사·퀴즈 39줄). 에피소드에 리바희·한지애가 함께 나옴.
+- 한지애(`jiae`, 선배 자리) — 털털하고 장난기 있는 연구개발 리더, 반말, 새 기술 좋아함. 대사 `voice-jiae.ts`(선배 대사·퀴즈 77줄). 외형 옵션 `lowpony` 머리·`softGlasses`·`smirk` 추가.
+- 리바희(`bahee`, 팀장 자리). 짧고 담담한 반말(무례하지 않게), 깐깐하고 청결에 까다롭지만 챙겨 줌. 외형: 검은 가운데 가르마 앞머리(`curtain`), 가는 눈(`narrow`), 창백한 피부. 대사 `voice-bahee.ts`(팀장 대사 64줄 전부). 외형 옵션 `curtain` 머리·`narrow`·`rolled`·`watch`·`mug`·`tired`·`brow`(pixel.ts)는 리바희 때 추가.
 - 연속 출석 칭호: `longestAttendance(p)` 기준. att3 작심삼일 돌파 · att7 일주일 개근 · att14 2주 개근러 · att30 한 달 개근왕.
 - 사무실 머리글(`.office-head`)은 body가 상태바 여백을 주므로 위로 끌어올리지 않음.

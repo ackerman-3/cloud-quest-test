@@ -460,6 +460,29 @@ def ep_bahee2():      # "확인했나?" 검정 머그
 ep_bahee2()
 cert('ep_bahee3','m',b_check)
 
+# ── 한지애 에피소드 보상 ──
+def ep_jiae1(cv):     # 센서 꽂은 화분
+    cv.rect(6,9,5,3,'O'); cv.hline(6,9,5,'d'); cv.ell(8.5,6,3,2.4,'l','L'); cv.vline(8,3,2,'v'); cv.set(10,4,'l')
+    cv.vline(11,5,4,'S'); cv.set(11,4,'m'); cv.set(12,3,'z'); cv.set(13,2,'z')
+photo('ep_jiae1','n','M','W',ep_jiae1)
+def ep_jiae2():       # "할당량 확인!" 스티커
+    cv=Cv(14,12); cv.ell(6.5,5.5,6,5,'y','Y'); cv.hline(3,4,7,'n'); cv.hline(3,6,5,'n'); cv.set(10,6,'r'); cv.set(10,7,'r')
+    cv.outline(); save('ep_jiae2',cv)
+ep_jiae2()
+cert('ep_jiae3','y',b_title)
+
+# ── 이예거 에피소드 보상 ──
+def ep_yeager1(cv):   # 번개 스티커 노트북
+    cv.rect(3,3,10,6,'n'); cv.rect(4,4,8,4,'B'); cv.hline(4,4,8,'j'); cv.rect(2,9,12,2,'g'); cv.hline(2,9,12,'S')
+    cv.set(11,5,'y'); cv.set(10,6,'y'); cv.set(11,6,'y'); cv.set(10,7,'y')
+photo('ep_yeager1','O','C','W',ep_yeager1)
+def ep_yeager2():     # "배포 전 3초" 체크 카드
+    cv=Cv(14,10); cv.rect(0,0,14,10,'w'); cv.rect(0,0,14,2,'x'); cv.hline(2,4,2,'m'); cv.hline(5,4,6,'G'); cv.hline(2,6,2,'m'); cv.hline(5,6,5,'G')
+    cv.set(11,7,'y'); cv.set(10,8,'y')
+    cv.outline(); save('ep_yeager2',cv)
+ep_yeager2()
+cert('ep_yeager3','x',b_check)
+
 used=set(''.join(''.join(r) for r in ART.values()))-{'.'}
 out=['// 자동 생성 파일: scripts/office-art.py 를 고친 뒤 python3 scripts/office-art.py 로 다시 만드세요.',
      'export const ART_PAL: Record<string, string> = '+json.dumps({k:v for k,v in PAL.items() if k in used},ensure_ascii=False),

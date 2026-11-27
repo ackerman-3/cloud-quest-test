@@ -1,6 +1,8 @@
 import type { Line, Project, Quiz, Step } from '../types'
 import { CHARS } from './characters'
 import { VOICE_BAHEE } from './voice-bahee'
+import { VOICE_JIAE } from './voice-jiae'
+import { VOICE_YEAGER } from './voice-yeager'
 
 /**
  * 팀 자리: 팀장·선배·동기. 자리마다 원년 멤버(자리 id와 같은 캐릭터)와 교체 인물이 있다.
@@ -27,7 +29,11 @@ export interface Alt {
 }
 
 /** 교체 인물 목록(자리마다 계속 늘릴 수 있음). 외형은 characters.ts, 동료 정보·에피소드는 friends2.ts */
-export const ALTS: Alt[] = [{ id: 'bahee', seat: 'lead', voice: VOICE_BAHEE }]
+export const ALTS: Alt[] = [
+  { id: 'bahee', seat: 'lead', voice: VOICE_BAHEE },
+  { id: 'jiae', seat: 'senior', voice: VOICE_JIAE },
+  { id: 'yeager', seat: 'peer', voice: VOICE_YEAGER },
+]
 
 export const ORIGINAL_CAST: Cast = { lead: 'lead', senior: 'senior', peer: 'peer' }
 export const seatOf = (charId: string): SeatId | null =>

@@ -3,6 +3,7 @@ export type Hair =
   | 'messy' // 부스스한 짧은 머리
   | 'side' // 옆가르마
   | 'curtain' // 가운데 가르마, 눈썹까지 내려오는 둥근 앞머리
+  | 'lowpony' // 낮게 묶은 곱슬머리 + 잔머리
   | 'slick' // 넘긴 머리
   | 'buzz' // 짧게 민 머리
   | 'curly' // 곱슬
@@ -48,6 +49,8 @@ export interface Look {
   tired?: boolean // 옅은 다크서클
   brow?: boolean // 한쪽 눈썹을 살짝 올린 표정
   narrow?: boolean // 가늘고 긴 눈
+  smirk?: boolean // 한쪽 입꼬리가 올라간 미소
+  softGlasses?: boolean // 얇은 반투명 둥근 사각 안경테
 }
 
 export const W = 24
@@ -114,6 +117,18 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
     shaded(17, 7, 20, 10, c.hair, 'hair', 17, 20)
     shaded(18, 11, 21, 17, c.hair, 'hair', 18, 21)
     set(20, 18, hairD, 'hair')
+  }
+  if (c.hairStyle === 'lowpony') {
+    // 목 뒤로 낮게 묶어 한쪽 어깨 앞으로 넘어온 곱슬 꼬리
+    shaded(17, 12, 19, 14, c.hair, 'hair', 17, 19)
+    shaded(18, 15, 20, 19, c.hair, 'hair', 18, 20)
+    set(19, 20, hairD, 'hair')
+    for (const [x, y] of [
+      [20, 15],
+      [18, 17],
+      [20, 18],
+    ])
+      set(x, y, hairL, 'hair')
   }
   if (c.hairStyle === 'bun') {
     shaded(9, 0, 14, 2, c.hair, 'hair', 9, 14)
@@ -427,6 +442,26 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
       rect(FL - 1, 6, FL - 1, 11, hairD, 'hair')
       rect(FR + 1, 6, FR + 1, 11, hairD, 'hair')
       break
+    case 'lowpony':
+      cap()
+      // 곱슬한 윗머리 결
+      set(9, 0, c.hair, 'hair')
+      set(14, 0, hairD, 'hair')
+      set(4 + fs, 4, c.hair, 'hair')
+      set(19 - fs, 4, hairD, 'hair')
+      // 옆으로 넘긴 앞머리(이마가 보임)
+      rect(FL, 7, 9, 7, c.hair, 'hair')
+      rect(15, 7, FR, 7, c.hair, 'hair')
+      set(FL, 8, c.hair, 'hair')
+      set(FR, 8, hairD, 'hair')
+      // 관자놀이·볼 옆으로 빠진 잔머리
+      rect(FL - 1, 6, FL - 1, 9, c.hair, 'hair')
+      set(FL - 1, 11, c.hair, 'hair')
+      set(FL - 2, 12, hairL, 'hair')
+      rect(FR + 1, 6, FR + 1, 9, hairD, 'hair')
+      set(FR + 1, 11, hairD, 'hair')
+      set(FR + 2, 12, hairD, 'hair')
+      break
     case 'twoblock':
       shaded(6, 0, 17, 4, c.hair, 'hair', 8, 15)
       shaded(5, 2, 18, 5, c.hair, 'hair', 6, 17)
@@ -487,7 +522,24 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
   // 눈썹
   rect(8, 8, 9, 8, lash, 'face')
   rect(14, 8, 15, 8, lash, 'face')
-  if (c.glasses) {
+  if (c.glasses && c.softGlasses) {
+    // 얇은 반투명 테: 모서리를 비운 둥근 사각, 렌즈는 살짝 비침
+    const f = c.glasses
+    const lens = (x: number, y: number) => {
+      if (p[y]?.[x] === 'skin') set(x, y, tone(c.skin, 0.12), 'skin')
+    }
+    for (const x0 of [7, 13]) {
+      rect(x0 + 1, 9, x0 + 2, 9, f, 'acc')
+      set(x0, 10, f, 'acc')
+      set(x0 + 3, 10, f, 'acc')
+      set(x0, 11, tone(f, 0.3), 'acc')
+      set(x0 + 3, 11, tone(f, 0.3), 'acc')
+      rect(x0 + 1, 12, x0 + 2, 12, tone(f, 0.45), 'acc')
+      lens(x0 + 1, 11)
+      lens(x0 + 2, 11)
+    }
+    rect(11, 10, 12, 10, f, 'acc')
+  } else if (c.glasses) {
     const f = c.glasses
     for (const x0 of [7, 13]) {
       rect(x0, 9, x0 + 3, 9, f, 'acc')
@@ -569,6 +621,12 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
   }
   if (talk) {
     rect(11, 13, 12, 14, '#7a2e35', 'face')
+  } else if (c.smirk) {
+    // 한쪽 입꼬리만 올라간 미소
+    set(11, 13, c.lips ?? tone(c.skin, -0.35), 'face')
+    set(12, 13, c.lips ?? tone(c.skin, -0.35), 'face')
+    set(13, 12, tone(c.skin, -0.3), 'face')
+    set(10, 13, tone(c.skin, -0.15), 'face')
   } else {
     rect(11, 13, 12, 13, c.lips ?? tone(c.skin, -0.35), 'face')
   }

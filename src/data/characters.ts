@@ -13,6 +13,10 @@ export const CHARS: Record<string, CharCfg> = {
   peer: { name: '니콜라스', role: '입사 동기', skin: '#fbe5d8', hair: '#f0a3bd', hairStyle: 'shag', eye: '#5b4e52', top: '#ececee', jacket: '#1f2026', bottom: '#26272d', shoes: '#18181c', earring: true, chain: true, print: true, sharp: true, small: true },
   // 팀장 자리 교체 인물
   bahee: { name: '리바희', role: '클라우드사업팀 팀장', skin: '#f8e8de', hair: '#17151a', hairStyle: 'curtain', eye: '#4a3028', narrow: true, top: '#8796ab', shirt: true, rolled: true, watch: '#141416', mug: '#26272c', bottom: '#2b2e36', shoes: '#1c1c20', sharp: true, small: true, tired: true },
+  // 선배 자리 교체 인물
+  jiae: { name: '한지애', role: '연구개발 리더(선배)', skin: '#f4d8c2', hair: '#5a2e22', hairStyle: 'lowpony', eye: '#b06a22', top: '#f3ead8', jacket: '#1f5c5a', bottom: '#3a3f4a', shoes: '#4a3428', glasses: '#7d8248', softGlasses: true, smirk: true, small: true },
+  // 동기 자리 교체 인물
+  yeager: { name: '이예거', role: '입사 동기', skin: '#f2d2b8', hair: '#4a2c20', hairStyle: 'messy', eye: '#1f7f7a', top: '#f3ede0', jacket: '#c0603e', rolled: true, watch: '#141416', bottom: '#3a3c42', shoes: '#26262a', sharp: true, small: true },
   flower: { name: '김봄', role: '플로라 꽃방 대표', skin: S.a, hair: '#b0552e', hairStyle: 'long', eye: '#7a5b3a', top: '#f6eedf', jacket: '#7aa56d', bottom: '#5b5e66', shoes: '#6a4a35', blush: true },
   publisher: { name: '남궁준', role: '한빛나래출판 마케팅팀장', skin: S.b, hair: '#9a9ca2', hairStyle: 'side', eye: '#4c5566', top: '#f2efe6', jacket: '#7b5a3e', tie: '#a63c3c', bottom: '#3f3a35', shoes: '#2d2522', glasses: '#6b4a2a' },
   fashion: { name: '윤다은', role: '무드웨어 CTO', skin: S.a, hair: '#1f1d26', hairStyle: 'short-f', eye: '#3e3a4a', top: '#2c2c35', jacket: '#d9d4cc', bottom: '#2c2c35', shoes: '#f0f0f0', earring: true },
