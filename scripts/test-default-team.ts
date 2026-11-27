@@ -4,12 +4,12 @@ import { ALTS, castProject, lineKey } from '../src/data/cast'
 import { CHARS } from '../src/data/characters'
 import { DEFAULT_FRIENDS } from '../src/data/friends-default'
 import { ART } from '../src/data/officeArt'
+import { MEMENTOS } from '../src/data/office'
 import { PROJECTS } from '../src/data/projects'
 import { FRIENDS, GIFTS } from '../src/data/rewards'
 import { DEFAULT_CAST, DEFAULT_TEAM, LEGACY_TEAM } from '../src/data/team'
 import { drawLook } from '../src/pixel'
-import { castOf, emptyProgress, earnedMementos, importJson, loadProgress, markEpisodeSeen, PROGRESS_KEY, setTeam, teamOf, validTeam, type Progress } from '../src/store'
-import type { TalkItem } from '../src/types'
+import { castOf, emptyProgress, earnedMementos, importJson, loadProgress, markEpisodeSeen, placedMap, PROGRESS_KEY, setTeam, teamOf, validTeam, type Progress } from '../src/store'
 
 const storage = new Map<string, string>()
 Object.assign(globalThis, { localStorage: {
@@ -70,33 +70,26 @@ assert.ok(first.t === 'talk')
 assert.equal(first.lines[0].text, '차보안이 한서버를 부르고 이코딩은 기다린다.')
 console.log(`OK 프로젝트 ${PROJECTS.length}개 · 대사 ${keys}줄 · 퀴즈 원문·수치·이름 조사`)
 
-let paths = 0
-const branches = (items: TalkItem[]): string[][] => items.reduce<string[][]>((acc, item) => {
-  if ('choice' in item) return acc.flatMap((a) => item.choice.flatMap((choice) => branches(choice.lines).map((b) => [...a, ...b])))
-  assert.ok(item.who === 'narr' || item.who === 'me' || CHARS[item.who], `에피소드 화자 ${item.who}`)
-  return acc.map((a) => [...a, item.who])
-}, [[]])
 for (const f of DEFAULT_FRIENDS) {
   assert.equal(f.greet.length, 4)
   assert.equal(f.talks.length, 4)
-  assert.deepEqual(f.episodes.map((e) => e.need), [50, 150, 300])
+  assert.deepEqual(f.episodes, [], '기본 멤버는 에피소드 없음')
   for (const snack of [...f.likes, ...f.dislikes, ...Object.keys(f.special ?? {})]) assert.ok(GIFTS.some((g) => g.id === snack))
   const grid = drawLook(CHARS[f.id])
   assert.equal(grid.length, 38)
   assert.ok(grid.every((row) => row.length === 24))
-  f.episodes.forEach((e, i) => {
-    assert.equal(e.reward.id, `ep_${f.id}${i + 1}`)
-    assert.ok(ART[e.reward.art], e.reward.art)
-    for (const path of branches(e.lines)) {
-      assert.ok(path.filter((who) => who === 'me').length <= 2)
-      paths++
-    }
-    assert.ok(earnedMementos(markEpisodeSeen(emptyProgress(), e.id)).has(e.reward.id), '완독 보상 연결')
-  })
+  assert.ok(!MEMENTOS.some((m) => m.friend === f.id), '기본 멤버 에피소드 보상 없음')
+  for (let i = 1; i <= 3; i++) {
+    assert.ok(!ART[`ep_${f.id}${i}`], '제거한 보상 그림 없음')
+    assert.ok(!earnedMementos(markEpisodeSeen(emptyProgress(), `${f.id}-${i}`)).has(`ep_${f.id}${i}`), '옛 완독 기록으로 보상 재생성 안 됨')
+  }
 }
+assert.ok(FRIENDS.filter((f) => !DEFAULT_TEAM.includes(f.id)).every((f) => f.episodes.length === 3), '다른 동료 에피소드 유지')
+assert.deepEqual(placedMap({ ...emptyProgress(), placed: { show1: 'ep_boan1', show2: 'ep_server3', show3: 'ep_coding2' } }), placedMap(emptyProgress()), '옛 기본 멤버 보상은 전시하지 않음')
 const office = readFileSync(new URL('../src/components/Office.tsx', import.meta.url), 'utf8')
 assert.ok(office.includes('onClick={() => onSave([...DEFAULT_TEAM])}'))
 assert.ok(office.includes('기본 멤버로 변경'))
 assert.ok(!office.includes('원년 멤버'))
 assert.ok(!office.includes('default-badge'))
-console.log(`OK 에피소드 9편 · 선택 경로 ${paths}개 · 보상 9개 · 픽셀 규격 · 초기화 버튼`)
+assert.ok(office.includes('fr.episodes.length > 0 &&'), '에피소드 0/0 미표시')
+console.log('OK 기본 멤버 에피소드·보상·그림 없음 · 다른 동료 에피소드 유지 · 픽셀 규격 · 초기화 버튼')

@@ -483,60 +483,6 @@ def ep_yeager2():     # "배포 전 3초" 체크 카드
 ep_yeager2()
 cert('ep_yeager3','x',b_check)
 
-# ── 차보안·한서버·이코딩의 기본 멤버 에피소드 보상 ──
-def ep_boan_board(cv):
-    cv.rect(2,2,12,7,'w'); cv.hline(2,2,12,'n')
-    for y in (4,6):
-        cv.set(4,y,'m'); cv.hline(6,y,6,'G')
-    cv.rect(5,10,6,2,'o'); cv.set(11,10,'y')
-photo('ep_boan1','n','j','W',ep_boan_board)
-
-def ep_boan_tea():
-    cv=Cv(14,12); cv.rect(1,3,12,8,'o'); cv.hline(1,3,12,'h')
-    cv.rect(3,5,8,4,'w'); cv.ell(7,7,2,1,'m'); cv.vline(7,5,3,'l')
-    cv.rect(2,1,10,2,'h'); cv.outline(); save('ep_boan2',cv)
-ep_boan_tea()
-
-def ep_boan_team(cv):
-    cv.rect(2,2,12,3,'w'); cv.hline(4,3,8,'B')
-    for x,h,t in ((2,'c','n'),(5,'K','g'),(9,'c','l'),(12,'q','B')): fig(cv,x,6,h,t)
-photo('ep_boan3','O','j','W',ep_boan_team)
-
-def ep_server_board(cv):
-    cv.rect(1,1,14,10,'w')
-    for x in (2,7,12):
-        cv.rect(x,3,2,2,'B'); cv.vline(x,6,3,'b'); cv.hline(x,8,2,'b')
-    cv.hline(3,5,10,'n'); cv.hline(2,10,11,'G')
-photo('ep_server1','n','j','W',ep_server_board)
-
-def ep_server_arrows():
-    cv=Cv(16,13); cv.rect(1,1,14,10,'n'); cv.rect(2,2,12,8,'w')
-    for x in (3,7,11): cv.rect(x,4,2,2,'B')
-    cv.hline(5,5,2,'b'); cv.hline(9,5,2,'b'); cv.set(6,4,'b'); cv.set(10,4,'b')
-    cv.rect(6,11,4,2,'d'); cv.outline(); save('ep_server2',cv)
-ep_server_arrows()
-
-def b_three(cv):
-    for y in (3,6,9): cv.hline(3,y,2,'B'); cv.hline(6,y,7,'G')
-cert('ep_server3','B',b_three)
-
-def ep_coding_list(cv):
-    cv.rect(4,1,8,10,'w'); cv.hline(4,1,8,'l')
-    for y in (3,5,7): cv.set(5,y,'m'); cv.hline(7,y,4,'G')
-    cv.rect(11,8,3,3,'l'); cv.set(13,7,'z')
-photo('ep_coding1','O','M','W',ep_coding_list)
-
-def ep_coding_card():
-    cv=Cv(14,11); cv.rect(1,1,12,9,'w'); cv.hline(1,1,12,'l')
-    cv.hline(3,4,8,'G'); cv.hline(3,6,6,'G'); cv.set(9,8,'m'); cv.set(10,9,'m'); cv.set(11,8,'m')
-    cv.outline(); save('ep_coding2',cv)
-ep_coding_card()
-
-def ep_coding_team(cv):
-    for x,h,t in ((2,'c','n'),(5,'K','g'),(9,'c','l'),(12,'q','B')): fig(cv,x,3,h,t)
-    cv.hline(3,10,10,'w'); cv.set(5,10,'m'); cv.set(8,10,'m'); cv.set(11,10,'m')
-photo('ep_coding3','l','j','W',ep_coding_team)
-
 used=set(''.join(''.join(r) for r in ART.values()))-{'.'}
 out=['// 자동 생성 파일: scripts/office-art.py 를 고친 뒤 python3 scripts/office-art.py 로 다시 만드세요.',
      'export const ART_PAL: Record<string, string> = '+json.dumps({k:v for k,v in PAL.items() if k in used},ensure_ascii=False),

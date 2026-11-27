@@ -657,7 +657,7 @@ export function Office({
 
             {mode === 'main' && (
               <>
-                <h3 className="o-h3">관계 보상</h3>
+                <h3 className="o-h3">{f.episodes.length || MEMENTOS.some((m) => m.friend === sel) ? '관계 보상' : '팀워크 단계'}</h3>
                 <ol className="o-track">
                   {BONDS.slice(1).map((b, i) => {
                     const ep = f.episodes[i]
@@ -937,7 +937,7 @@ function TeamSheet({ progress, onClose, onSave }: { progress: Progress; onClose:
                     </b>
                     <small>{c.role}</small>
                     <small className="team-meta">
-                      {BONDS[b.idx].name} · 에피소드 {eps}/{fr.episodes.length}
+                      {BONDS[b.idx].name}{fr.episodes.length > 0 && <> · 에피소드 {eps}/{fr.episodes.length}</>}
                     </small>
                   </span>
                   <i className="team-check">{order >= 0 ? order + 1 : ''}</i>

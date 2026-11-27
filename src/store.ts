@@ -382,7 +382,12 @@ export function buyItem(p: Progress, id: string, cost: number): Progress {
 }
 
 export function placedMap(p: Progress): Record<string, string | null> {
-  return { ...DEFAULT_PLACED, ...(p.placed ?? {}) }
+  const placed = { ...DEFAULT_PLACED, ...(p.placed ?? {}) }
+  // 제거한 기본 멤버 에피소드 보상은 옛 배치 기록에 남아 있어도 전시하지 않는다.
+  for (const [slot, id] of Object.entries(placed)) {
+    if (id && /^ep_(boan|server|coding)[1-3]$/.test(id)) placed[slot] = null
+  }
+  return placed
 }
 
 /** 자리에 배치. 기념품을 다른 전시 자리에서 옮겨 오면 원래 자리는 비운다 */
