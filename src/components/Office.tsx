@@ -946,7 +946,7 @@ function TeamSheet({ progress, onClose, onSave }: { progress: Progress; onClose:
             )
           })}
         </ul>
-        <small className="o-sub">팀에서 빠진 동료의 팀워크와 에피소드 기록은 그대로 남아요. 팀장·선배·동기가 팀에 없으면 프로젝트에는 차보안·한서버·이코딩이 해당 자리를 맡아요.</small>
+        <small className="o-sub">팀에서 빠진 동료의 팀워크와 에피소드 기록은 그대로 남아요.</small>
         <div className="o-btns">
           <button className="ghost" onClick={() => onSave([...DEFAULT_TEAM])}>
             기본 멤버로 변경
