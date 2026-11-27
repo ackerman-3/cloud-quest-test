@@ -38,6 +38,7 @@ export interface Look {
   headset?: boolean
   blush?: boolean
   sharp?: boolean // 갸름한 턱선과 날렵한 눈매
+  roundFace?: boolean // 눈매는 유지하고 볼·턱은 기본 얼굴형 사용
   small?: boolean // 작은 얼굴(모델 비율)
   shirt?: boolean // 깃 있는 셔츠(겉옷 없을 때)
   chain?: boolean // 은색 목걸이
@@ -551,18 +552,20 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
     rect(11, 9, 12, 9, f, 'acc')
   }
   if (c.sharp) {
-    // 갸름한 턱
-    for (const [x, y] of [
-      [FL, FB - 1],
-      [FR, FB - 1],
-      [FL, FB - 2],
-      [FR, FB - 2],
-      [FL + 1, FB - 1],
-      [FR - 1, FB - 1],
-    ])
-      del(x, y)
-    set(FL + 2, FB, skinD, 'skin')
-    set(FR - 2, FB, skinD, 'skin')
+    if (!c.roundFace) {
+      // 갸름한 턱
+      for (const [x, y] of [
+        [FL, FB - 1],
+        [FR, FB - 1],
+        [FL, FB - 2],
+        [FR, FB - 2],
+        [FL + 1, FB - 1],
+        [FR - 1, FB - 1],
+      ])
+        del(x, y)
+      set(FL + 2, FB, skinD, 'skin')
+      set(FR - 2, FB, skinD, 'skin')
+    }
     // 날렵한 눈매: 위 속눈썹 선을 길게, 눈썹을 올림
     if (!blink) {
       rect(7, 9, 9, 9, lash, 'face')
