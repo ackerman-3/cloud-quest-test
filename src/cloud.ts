@@ -83,7 +83,7 @@ function computeState(): CloudState {
   return {
     enabled,
     signedIn,
-    userId: signedIn ? m.userId : undefined,
+    userId: signedIn ? uid ?? m.userId : undefined,
     username: signedIn ? m.username : undefined,
     nickname: signedIn ? m.nickname : undefined,
     avatar: signedIn ? m.avatar : undefined,
@@ -111,6 +111,11 @@ export function useCloud() {
 
 // ── Supabase 연결 ──
 let client: SupabaseClient | null = null
+const boardRequests = new Set<AbortController>()
+function cancelBoardRequests() {
+  for (const request of boardRequests) request.abort()
+  boardRequests.clear()
+}
 function sb() {
   if (!client)
     client = createClient(API_URL, API_KEY, {
@@ -132,6 +137,7 @@ export function initCloud(opts: { apply: (p: Progress) => void; switched: () => 
   if (!enabled) return
   sb().auth.onAuthStateChange((event, session) => {
     const was = signedIn
+    if (uid !== (session?.user.id ?? null)) cancelBoardRequests()
     signedIn = !!session
     uid = session?.user.id ?? null
     if (event === 'SIGNED_OUT') lastError = undefined
@@ -371,6 +377,7 @@ export async function signOut(forceLeave = false): Promise<boolean> {
   if (loadMeta().dirty) await syncNow()
   if (loadMeta().dirty && !forceLeave) return false
   await sb().auth.signOut({ scope: 'local' })
+  cancelBoardRequests()
   signedIn = false
   uid = null
   emit()
@@ -427,6 +434,29 @@ export async function memberCount(): Promise<number | null> {
   return error ? null : Number(data)
 }
 
+/** 게시판 전용 RPC. 기존 로그인 세션을 재사용하며 비밀글은 기기에 따로 저장하지 않는다. */
+export async function callBoardRpc<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
+  if (!/^board_(meta|list|get|create|comment|delete_post|delete_comment|status)$/.test(name)) throw new Error('지원하지 않는 요청이에요.')
+  if (!enabled || !signedIn || !uid) throw new Error('로그인한 뒤 이용해 주세요.')
+  if (demoMode) throw new Error('체험 모드에서는 게시판을 이용할 수 없어요. 실제 앱에서 로그인해 주세요.')
+  const account = uid
+  const request = new AbortController()
+  boardRequests.add(request)
+  try {
+    const { data, error } = await sb().rpc(name, args).abortSignal(request.signal)
+    if (uid !== account || !signedIn) throw new Error('계정이 변경되었어요. 다시 열어 주세요.')
+    if (error) {
+      if (error.code === 'PGRST202' || error.code === '42P01') throw new Error('게시판을 준비 중이에요. 잠시 후 다시 이용해 주세요.')
+      if (error.code === '42501') throw new Error('글을 볼 수 없거나 이 작업을 할 권한이 없어요.')
+      if (error.code === '22023' || error.code === '23514') throw new Error('입력 내용을 확인해 주세요. 제목 80자, 본문 3,000자, 댓글 1,500자까지 적을 수 있어요.')
+      throw new Error('처리하지 못했어요. 연결을 확인하고 다시 시도해 주세요.')
+    }
+    return data as T
+  } finally {
+    boardRequests.delete(request)
+  }
+}
+
 function errText(e: unknown) {
   const m = (e as { message?: string })?.message ?? ''
   if (/fetch|network|Failed to/i.test(m)) return '연결하지 못했어요. 인터넷 연결을 확인해 주세요.'
@@ -436,6 +466,7 @@ function errText(e: unknown) {
 /** 테스트 전용: 서버 대신 가짜 저장소를 쓰고, 로그인 상태를 직접 정한다 */
 export const __test = {
   use(b: Backend, user: string | null) {
+    if (uid !== user) cancelBoardRequests()
     backend = b
     enabled = true
     signedIn = !!user

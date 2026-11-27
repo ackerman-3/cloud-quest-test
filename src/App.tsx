@@ -6,6 +6,7 @@ import { Office, EpisodeHeader, PixelArt } from './components/Office'
 import { Talk } from './components/Talk'
 import { Study } from './components/Study'
 import { Ranking } from './components/Ranking'
+import { InquiryBoard } from './components/InquiryBoard'
 import { castProject } from './data/cast'
 import { ATTEND_GOLD, FRIENDS, GOLD, PRACTICE_RATE, type Episode } from './data/rewards'
 import { PROJECTS, LEVELS } from './data/projects'
@@ -46,6 +47,7 @@ type View =
   | { v: 'result'; id: string; c: Completion; levelUp: number | null }
   | { v: 'episode'; friend: string; ep: Episode }
   | { v: 'ranking' }
+  | { v: 'board' }
 
 export default function App() {
   const [progress, setP] = useState<Progress>(loadProgress)
@@ -308,7 +310,9 @@ export default function App() {
   return (
     <div className="with-nav">
       {toast}
-      {view.v === 'ranking' ? (
+      {view.v === 'board' ? (
+        <InquiryBoard onBack={() => goTab('home')} onLogin={() => goTab('records')} />
+      ) : view.v === 'ranking' ? (
         <Ranking
           progress={progress}
           onBack={() => goTab('home')}
@@ -334,6 +338,10 @@ export default function App() {
           onGift={() => goTab('office')}
           onRanking={() => {
             setView({ v: 'ranking' })
+            window.scrollTo(0, 0)
+          }}
+          onBoard={() => {
+            setView({ v: 'board' })
             window.scrollTo(0, 0)
           }}
           progress={progress}

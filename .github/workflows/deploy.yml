@@ -27,6 +27,7 @@ jobs:
       - run: npm run lint
       - run: npx tsx scripts/test-sync.ts
       - run: npx tsx scripts/test-default-team.ts
+      - run: npx tsx scripts/test-board.ts
       - run: npx tsx scripts/check-answers.ts
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

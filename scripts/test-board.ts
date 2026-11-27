@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { BOARD_CATEGORIES, NOTE_COLORS, boardLength, validateComment, validatePost, type PostDraft } from '../src/data/board'
+
+const valid: PostDraft = { title: '새 기능 문의', body: '보고 싶은 기능이 있어요.\n두 번째 줄', category: 'idea', color: 'mint', is_secret: true }
+assert.deepEqual(validatePost({ ...valid, title: '  새 기능 문의  ' }), valid)
+for (const title of ['', ' '.repeat(8), '가'.repeat(81), '제목\n줄바꿈', '\u0000']) assert.throws(() => validatePost({ ...valid, title }))
+for (const body of ['', '\n\t  ', '가'.repeat(3001), '본문\u0000']) assert.throws(() => validatePost({ ...valid, body }))
+assert.doesNotThrow(() => validatePost({ ...valid, title: '가'.repeat(80), body: '가'.repeat(3000) }))
+assert.equal(boardLength('가😀'), 2)
+assert.throws(() => validatePost({ ...valid, category: 'admin' as PostDraft['category'] }))
+assert.throws(() => validatePost({ ...valid, color: 'red' as PostDraft['color'] }))
+assert.equal(validateComment('  댓글\n입니다  '), '댓글\n입니다')
+assert.throws(() => validateComment(' \n\t'))
+assert.throws(() => validateComment('가'.repeat(1501)))
+assert.doesNotThrow(() => validateComment('가'.repeat(1500)))
+assert.equal(validateComment('<img src=x onerror=alert(1)>'), '<img src=x onerror=alert(1)>')
+assert.equal(BOARD_CATEGORIES.length,3)
+assert.equal(NOTE_COLORS.length,6)
+console.log('OK 게시글·댓글 입력 검증, 유니코드 길이, 허용 유형·색상')
+
+const sql = readFileSync(new URL('../supabase/board.sql', import.meta.url), 'utf8')
+const functionNames = [...sql.matchAll(/create or replace function public\.(board_\w+)/g)].map((m) => m[1])
+assert.equal(functionNames.length,9)
+assert.equal((sql.match(/security definer set search_path = ''/g) ?? []).length,9)
+for (const table of ['board_admins','board_posts','board_comments']) assert.ok(sql.includes(`alter table public.${table} enable row level security;`))
+assert.ok(sql.includes('revoke all on public.board_admins, public.board_posts, public.board_comments from public, anon, authenticated;'))
+assert.ok(!/grant\s+(insert|update|delete|all)\s+on/i.test(sql))
+assert.ok(sql.includes('where (not p.is_secret or p.author_id=v_uid or v_admin)'))
+assert.ok(sql.includes('not c.is_secret or c.author_id=v_uid or v_post.author_id=v_uid or v_admin'))
+assert.ok(sql.includes('unique(author_id, request_id)'))
+assert.ok(sql.includes('on conflict(author_id,request_id) do nothing'))
+console.log('OK SQL 구성 검사: RLS·고정 search_path·권한 회수·조회 조건·중복 전송 방지 (DB 실행 검사는 별도 SQL)')
+
+const component = readFileSync(new URL('../src/components/InquiryBoard.tsx', import.meta.url),'utf8')
+const service = readFileSync(new URL('../src/board.ts', import.meta.url),'utf8')
+assert.ok(!component.includes('dangerouslySetInnerHTML'))
+assert.ok(!/localStorage\.(setItem|getItem)/.test(component+service))
+assert.ok(component.includes('key={`${cloud.signedIn}:${cloud.userId'))
+assert.ok(component.includes('request !== detailRequest.current') || component.includes('request === detailRequest.current'))
+const home = readFileSync(new URL('../src/components/Home.tsx',import.meta.url),'utf8')
+assert.ok(home.indexOf('className="lobby-inquiry"')>home.indexOf('className="lobby-rank"'))
+console.log('OK 홈 진입점·텍스트 렌더링·계정별 상태 분리·비밀글 로컬 저장 없음')
