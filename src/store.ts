@@ -4,7 +4,8 @@ import { ATTEND_GOLD, FRIENDS, ORIGINAL_TEAM, LEVEL_GOLD, PRACTICE_PEEK_RATE, PR
 import { DEFAULT_PLACED, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS } from './data/office'
 import type { Design } from './types'
 import { TITLES } from './data/ranking'
-import { ORIGINAL_CAST, SEATS, seatOf, type Cast } from './data/cast'
+import { seatOf, type Cast } from './data/cast'
+import { DEFAULT_CAST, DEFAULT_TEAM, LEGACY_TEAM } from './data/team'
 
 // ⚠️ 저장 키 이름과 형식을 바꾸면 기존 기록이 사라질 수 있습니다.
 export const PROGRESS_KEY = KEY_PREFIX + 'cloud-quest-progress-v1'
@@ -39,7 +40,7 @@ export interface Progress {
   seenEpisodes?: string[]
   /** 클리어한 프로젝트의 퀴즈·구성도만 다시 한 기록(완료 수·별·승급에는 반영 안 함) */
   practices?: Practice[]
-  /** 사무실·라운지에 함께 있는 동료 3명(없으면 원년 멤버). 이 안의 팀장·선배·동기 교체 인물이 프로젝트에도 나온다 */
+  /** 사무실·라운지 동료 3명. 없는 옛 기록은 케이·변의주·니콜라스로 해석한다. */
   team?: string[]
 }
 
@@ -83,7 +84,10 @@ export interface Session {
   savedAt: number
 }
 
-const empty = (): Progress => ({ version: 1, completions: [], dailyGoal: 2 })
+const empty = (): Progress => ({ version: 1, completions: [], dailyGoal: 2, team: [...DEFAULT_TEAM] })
+
+/** 옛 저장·백업은 team이 없었다. 신규 시작과 구별해 기존 동료를 보존한다. */
+const restoreProgress = (p: Progress): Progress => ({ ...empty(), ...p, team: teamOf(p) })
 
 export function today(d = new Date()) {
   const p = (n: number) => String(n).padStart(2, '0')
@@ -111,7 +115,7 @@ export function loadProgress(): Progress {
   if (!raw) return empty()
   try {
     const p = JSON.parse(raw) as Progress
-    if (p && p.version === 1 && Array.isArray(p.completions)) return { ...empty(), ...p }
+    if (p && p.version === 1 && Array.isArray(p.completions)) return restoreProgress(p)
   } catch {
     /* 손상된 데이터는 무시 */
   }
@@ -215,7 +219,7 @@ export function importJson(text: string): Progress | null {
   try {
     const o = JSON.parse(text)
     const p = (o?.progress ?? o) as Progress
-    if (p?.version === 1 && Array.isArray(p.completions)) return { ...empty(), ...p }
+    if (p?.version === 1 && Array.isArray(p.completions)) return restoreProgress(p)
   } catch {
     /* noop */
   }
@@ -480,10 +484,10 @@ export function validTeam(ids: string[]) {
   const seats = ids.map(seatOf).filter((x) => x)
   return new Set(seats).size === seats.length
 }
-export const teamOf = (p: Progress): string[] => (p.team && validTeam(p.team) ? [...p.team] : SEATS.map((s) => s.id))
-/** 프로젝트 대화의 팀장·선배·동기: 팀에 그 자리 사람이 있으면 그 사람, 없으면 원년 멤버 */
+export const teamOf = (p: Progress): string[] => (p.team && validTeam(p.team) ? [...p.team] : [...LEGACY_TEAM])
+/** 프로젝트 대화의 자리별 동료. 빠진 자리는 기본 멤버가 맡는다. */
 export function castOf(p: Progress): Cast {
-  const c = { ...ORIGINAL_CAST }
+  const c: Cast = { ...DEFAULT_CAST }
   for (const id of teamOf(p)) {
     const seat = seatOf(id)
     if (seat) c[seat] = id

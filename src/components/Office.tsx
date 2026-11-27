@@ -5,6 +5,7 @@ import { ART, ART_PAL } from '../data/officeArt'
 import { deskmates, FIXTURES, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS, furniture, memento, type Furniture, type Slot } from '../data/office'
 import { ROOM, SPRITES } from '../data/officeSprites'
 import { SEATS, seatOf } from '../data/cast'
+import { DEFAULT_TEAM } from '../data/team'
 import { BONDS, FRIENDS, GOLD, ORIGINAL_TEAM, SNACKS, TALK_POINTS, PROJECT_POINTS, bondOf, giftPoints, type Episode, type GiftItem } from '../data/rewards'
 import { W as SPR_W, H as SPR_H } from '../pixel'
 import {
@@ -692,7 +693,7 @@ export function Office({
                         {b.min === RELATION_PROP_NEED && ORIGINAL_TEAM.includes(sel) && (
                           <div className="o-prop">
                             <PixelArt name="team_photo" className="o-prop-art" />
-                            <span>원년 멤버 세 명 모두 이 단계면 팀 사진 액자{earned.has('team_photo') ? '' : ' 🔒'}</span>
+                            <span>케이·변의주·니콜라스 모두 이 단계면 팀 사진 액자{earned.has('team_photo') ? '' : ' 🔒'}</span>
                           </div>
                         )}
                       </li>
@@ -945,10 +946,10 @@ function TeamSheet({ progress, onClose, onSave }: { progress: Progress; onClose:
             )
           })}
         </ul>
-        <small className="o-sub">팀에서 빠진 동료의 팀워크와 에피소드 기록은 그대로 남아요. 팀장·선배·동기가 팀에 없으면 프로젝트에는 원년 멤버가 나와요.</small>
+        <small className="o-sub">팀에서 빠진 동료의 팀워크와 에피소드 기록은 그대로 남아요. 팀장·선배·동기가 팀에 없으면 프로젝트에는 차보안·한서버·이코딩이 해당 자리를 맡아요.</small>
         <div className="o-btns">
-          <button className="ghost" onClick={() => setPick(['lead', 'senior', 'peer'])}>
-            원년 멤버로
+          <button className="ghost" onClick={() => onSave([...DEFAULT_TEAM])}>
+            기본 멤버로 변경
           </button>
           <button className="primary" disabled={pick.length !== TEAM_SIZE || unchanged} onClick={() => onSave(pick)}>
             {pick.length === TEAM_SIZE ? '이 팀으로 하기' : `${TEAM_SIZE - pick.length}명 더 고르기`}

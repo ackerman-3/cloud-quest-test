@@ -8,6 +8,9 @@ export interface CharCfg extends Look {
 const S = { a: '#f7d7bd', b: '#efc19d', c: '#d6a07a', d: '#b07a55' }
 
 export const CHARS: Record<string, CharCfg> = {
+  boan: { name: '차보안', role: '클라우드사업팀 팀장', skin: '#f5d8c3', hair: '#392d2c', hairStyle: 'bob', eye: '#655653', top: '#f4eee3', jacket: '#384c65', bottom: '#333b48', shoes: '#292a31', small: true, watch: '#a89774' },
+  server: { name: '한서버', role: '클라우드 아키텍트(선배)', skin: S.b, hair: '#302c2a', hairStyle: 'swept', eye: '#665b52', top: '#d6e7f1', jacket: '#8b9396', bottom: '#404b59', shoes: '#4d4139', shirt: true, small: true, glasses: '#6f777c', softGlasses: true },
+  coding: { name: '이코딩', role: '입사 동기', skin: '#f7ddca', hair: '#80563e', hairStyle: 'pony', eye: '#75604e', top: '#a9c6ac', bottom: '#46505a', shoes: '#eee8dc', small: true, badge: '#ddd3ae' },
   lead: { name: '케이', role: '클라우드사업팀 팀장', skin: '#f8e0d0', hair: '#2a2326', hairStyle: 'shag', eye: '#55505a', top: '#b9d8f2', bottom: '#30343f', shoes: '#1d1d22', sharp: true, small: true, shirt: true },
   senior: { name: '변의주', role: '클라우드 아키텍트(선배)', skin: S.b, hair: '#5b3a28', hairStyle: 'side', eye: '#24232a', top: '#cfe0f2', jacket: '#7d8794', bottom: '#3c4352', shoes: '#4a3428', sharp: true, small: true },
   peer: { name: '니콜라스', role: '입사 동기', skin: '#fbe5d8', hair: '#f0a3bd', hairStyle: 'shag', eye: '#5b4e52', top: '#ececee', jacket: '#1f2026', bottom: '#26272d', shoes: '#18181c', earring: true, chain: true, print: true, sharp: true, small: true },

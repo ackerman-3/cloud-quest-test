@@ -7,7 +7,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { useSyncExternalStore } from 'react'
 import { SUPABASE_KEY, SUPABASE_URL, USER_EMAIL_DOMAIN } from './data/server'
 import { mergeProgress } from './merge'
-import { emptyProgress, isEmptyProgress, loadProgress, rankStats, saveProgress, type Progress } from './store'
+import { emptyProgress, isEmptyProgress, loadProgress, rankStats, saveProgress, teamOf, type Progress } from './store'
 
 import { DEMO_URL } from './demoServer'
 
@@ -321,7 +321,7 @@ async function adopt(): Promise<string> {
   }
   if (isEmptyProgress(local)) {
     // 새 기기: 계정 기록을 쓰되 오늘 출석은 함께 남긴다
-    const merged = mergeProgress({ ...local, dailyGoal: row.data.dailyGoal ?? local.dailyGoal }, row.data)
+    const merged = mergeProgress({ ...local, dailyGoal: row.data.dailyGoal ?? local.dailyGoal, team: teamOf(row.data) }, row.data)
     const extra = (merged.attendance?.length ?? 0) > (row.data.attendance?.length ?? 0)
     apply(merged)
     saveMeta({ ...who, rev: row.rev, dirty: extra, force: false, lastSync: Date.now() })

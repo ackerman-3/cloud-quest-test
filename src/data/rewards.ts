@@ -2,6 +2,7 @@
 // 저장 데이터 호환: 간식 기록은 Progress.gifts, 팀워크 점수 기준은 예전 호감도 수치를 그대로 이어서 쓴다.
 import type { Line, SceneName, TalkItem } from '../types'
 import { NEW_FRIENDS } from './friends2'
+import { DEFAULT_FRIENDS } from './friends-default'
 
 /** 화폐 단위 */
 export const GOLD = 'G'
@@ -762,8 +763,9 @@ export const FRIENDS: Friend[] = [
   },
 ]
 
-/** 원년 멤버: 처음 사무실에 있는 세 명(프로젝트 대화에 등장, 팀 사진 액자 조건) */
+/** 케이·변의주·니콜라스의 기존 팀 사진 액자 조건. 신규 시작 팀과는 별개다. */
 export const ORIGINAL_TEAM = ['lead', 'senior', 'peer']
+FRIENDS.unshift(...DEFAULT_FRIENDS)
 // 자리 교체 인물의 동료 정보·에피소드(friends2.ts, 자리는 cast.ts)
 FRIENDS.push(...NEW_FRIENDS)
 

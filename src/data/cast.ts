@@ -3,9 +3,12 @@ import { CHARS } from './characters'
 import { VOICE_BAHEE } from './voice-bahee'
 import { VOICE_JIAE } from './voice-jiae'
 import { VOICE_YEAGER } from './voice-yeager'
+import { VOICE_BOAN } from './voice-boan'
+import { VOICE_SERVER } from './voice-server'
+import { VOICE_CODING } from './voice-coding'
 
 /**
- * 팀 자리: 팀장·선배·동기. 자리마다 원년 멤버(자리 id와 같은 캐릭터)와 교체 인물이 있다.
+ * 팀 자리: 팀장·선배·동기. 기존 인물의 저장 id는 유지하고 기본 멤버도 별도 id로 등록한다.
  * 사무실 팀(3명)에 교체 인물을 넣으면 프로젝트 대화·퀴즈에서도 그 사람이 대신 말한다(store.ts castOf).
  * 대사 내용은 같고, voice에 그 사람 말투로 다시 쓴 대사가 있으면 그걸 쓴다.
  */
@@ -30,6 +33,9 @@ export interface Alt {
 
 /** 교체 인물 목록(자리마다 계속 늘릴 수 있음). 외형은 characters.ts, 동료 정보·에피소드는 friends2.ts */
 export const ALTS: Alt[] = [
+  { id: 'boan', seat: 'lead', voice: VOICE_BOAN },
+  { id: 'server', seat: 'senior', voice: VOICE_SERVER },
+  { id: 'coding', seat: 'peer', voice: VOICE_CODING },
   { id: 'bahee', seat: 'lead', voice: VOICE_BAHEE },
   { id: 'jiae', seat: 'senior', voice: VOICE_JIAE },
   { id: 'yeager', seat: 'peer', voice: VOICE_YEAGER },
@@ -49,7 +55,18 @@ const ORIGINAL_NAMES: [SeatId, RegExp][] = [
 ]
 function renameMates(text: string, cast: Cast) {
   let t = text
-  for (const [seat, re] of ORIGINAL_NAMES) if (cast[seat] !== seat) t = t.replace(re, CHARS[cast[seat]].name)
+  for (const [seat, re] of ORIGINAL_NAMES) {
+    if (cast[seat] === seat) continue
+    const name = CHARS[cast[seat]].name
+    const end = name.charCodeAt(name.length - 1) - 0xac00
+    const jong = end >= 0 && end <= 11171 ? end % 28 : 0
+    const withParticle = new RegExp(`${re.source}(으로|로|이랑|랑|은|는|이|가|을|를|과|와)(?=[\\s,.!?…]|$)`, 'g')
+    t = t.replace(withParticle, (_match, particle: string) => {
+      const pair = [['은', '는'], ['이', '가'], ['을', '를'], ['과', '와'], ['이랑', '랑']].find((p) => p.includes(particle))
+      return name + (pair ? pair[jong ? 0 : 1] : jong && jong !== 8 ? '으로' : '로')
+    })
+    t = t.replace(re, name)
+  }
   return t
 }
 

@@ -160,5 +160,19 @@ console.log('   B:', await __test.adopt())
 const m10 = server.get('u1')!.data
 ok(ids(m10).includes(P4) && ids(m10).includes(P3), '10. 기록 있는 새 기기 로그인: 기기 기록과 계정 기록을 합침')
 
+// 11. 새 기기의 기본 팀이 기존 서버 계정의 선택 팀을 덮어쓰면 안 됨
+server.set('chosen-team', { data: { ...S.emptyProgress(), team: ['bahee', 'jiae', 'yeager'] }, rev: 1 })
+stores.B = new Map()
+device('B', 'chosen-team')
+await __test.adopt()
+ok(S.teamOf(local()).join(',') === 'bahee,jiae,yeager', '11. 새 기기 로그인도 서버의 선택 팀 유지')
+
+// 12. team 필드가 없던 옛 서버 계정은 케이·변의주·니콜라스 유지
+server.set('legacy-team', { data: { version: 1, completions: [], dailyGoal: 2 }, rev: 1 })
+stores.B = new Map()
+device('B', 'legacy-team')
+await __test.adopt()
+ok(S.teamOf(local()).join(',') === 'lead,senior,peer', '12. 옛 서버 계정의 기존 동료 유지')
+
 console.log(fails ? `\n실패 ${fails}건` : '\n모두 통과')
 process.exit(fails ? 1 : 0)
