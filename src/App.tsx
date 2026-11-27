@@ -6,6 +6,7 @@ import { Office, EpisodeHeader, PixelArt } from './components/Office'
 import { Talk } from './components/Talk'
 import { Study } from './components/Study'
 import { Ranking } from './components/Ranking'
+import { castProject } from './data/cast'
 import { ATTEND_GOLD, FRIENDS, GOLD, PRACTICE_RATE, type Episode } from './data/rewards'
 import { PROJECTS, LEVELS } from './data/projects'
 import { CHARS } from './data/characters'
@@ -33,6 +34,7 @@ import {
   type Progress,
   type Session,
   teamOf,
+  castOf,
 } from './store'
 
 type Tab = 'home' | 'projects' | 'study' | 'office' | 'records'
@@ -207,7 +209,7 @@ export default function App() {
     const project = PROJECTS.find((p) => p.id === view.id)!
     return (
       <Play
-        project={project}
+        project={castProject(project, castOf(progress))}
         resume={view.resume}
         only={view.only}
         onExit={() => {

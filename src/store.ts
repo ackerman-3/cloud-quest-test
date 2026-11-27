@@ -1,9 +1,10 @@
 import { PROJECTS, LEVELS } from './data/projects'
 import { KEY_PREFIX } from './env'
-import { ATTEND_GOLD, FRIENDS, ORIGINAL_TEAM, TEAM_SIZE, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
+import { ATTEND_GOLD, FRIENDS, ORIGINAL_TEAM, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
 import { DEFAULT_PLACED, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS } from './data/office'
 import type { Design } from './types'
 import { TITLES } from './data/ranking'
+import { ORIGINAL_CAST, SEATS, seatOf, type Cast } from './data/cast'
 
 // ⚠️ 저장 키 이름과 형식을 바꾸면 기존 기록이 사라질 수 있습니다.
 export const PROGRESS_KEY = KEY_PREFIX + 'cloud-quest-progress-v1'
@@ -38,7 +39,7 @@ export interface Progress {
   seenEpisodes?: string[]
   /** 클리어한 프로젝트의 퀴즈·구성도만 다시 한 기록(완료 수·별·승급에는 반영 안 함) */
   practices?: Practice[]
-  /** 사무실·라운지에 함께 있는 동료 3명(없으면 원년 멤버) */
+  /** 사무실·라운지에 함께 있는 동료 3명(없으면 원년 멤버). 이 안의 팀장·선배·동기 교체 인물이 프로젝트에도 나온다 */
   team?: string[]
 }
 
@@ -339,7 +340,9 @@ export function projectFriends(projectId: string) {
 export function teamworkParts(p: Progress, charId: string) {
   const snack = (p.gifts ?? []).filter((g) => g.to === charId).reduce((s, g) => s + g.points, 0)
   const talkDays = new Set((p.talks ?? []).filter((t) => t.to === charId).map((t) => t.date)).size
-  const projects = p.completions.filter((c) => c.counted && projectFriends(c.projectId).has(charId)).length
+  // 교체 인물은 자기 자리(팀장·선배·동기)가 나오는 프로젝트를 함께한 것으로 친다
+  const seat = seatOf(charId) ?? charId
+  const projects = p.completions.filter((c) => c.counted && projectFriends(c.projectId).has(seat)).length
   return { snack, talk: talkDays * TALK_POINTS, project: projects * PROJECT_POINTS }
 }
 
@@ -468,13 +471,27 @@ export function ownedTitles(p: Progress) {
   return new Set(TITLES.filter((t) => has[t.id]).map((t) => t.id))
 }
 
-// ── 팀 구성(사무실·라운지에 있는 동료 3명) ──
-export function teamOf(p: Progress): string[] {
-  const ok = (p.team ?? []).filter((id, i, a) => FRIENDS.some((f) => f.id === id) && a.indexOf(id) === i)
-  return ok.length === TEAM_SIZE ? ok : [...ORIGINAL_TEAM]
+// ── 팀 구성: 사무실 3명. 그 안의 팀장·선배·동기 교체 인물이 프로젝트 대화에도 나온다 ──
+export const TEAM_SIZE = 3
+/** 같은 자리(팀장·선배·동기) 사람은 한 명만, 서로 다른 동료 3명이어야 유효 */
+export function validTeam(ids: string[]) {
+  if (ids.length !== TEAM_SIZE || new Set(ids).size !== TEAM_SIZE) return false
+  if (!ids.every((id) => FRIENDS.some((f) => f.id === id))) return false
+  const seats = ids.map(seatOf).filter((x) => x)
+  return new Set(seats).size === seats.length
+}
+export const teamOf = (p: Progress): string[] => (p.team && validTeam(p.team) ? [...p.team] : SEATS.map((s) => s.id))
+/** 프로젝트 대화의 팀장·선배·동기: 팀에 그 자리 사람이 있으면 그 사람, 없으면 원년 멤버 */
+export function castOf(p: Progress): Cast {
+  const c = { ...ORIGINAL_CAST }
+  for (const id of teamOf(p)) {
+    const seat = seatOf(id)
+    if (seat) c[seat] = id
+  }
+  return c
 }
 export function setTeam(p: Progress, ids: string[]): Progress {
-  return { ...p, team: ids.slice(0, TEAM_SIZE) }
+  return { ...p, team: ids }
 }
 
 /** 출석이 가장 길게 이어진 일수 */

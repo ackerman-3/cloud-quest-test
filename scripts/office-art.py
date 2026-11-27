@@ -444,47 +444,21 @@ photo('ep_lead1','O','C','W',ep_lead1); photo('ep_senior1','O','j','l',ep_senior
 cert('ep_lead2','m',b_check); cert('ep_senior3','y',b_title); cert('ep_peer3','p',b_title)
 notebook('ep_lead3','c','D',st_coffee); notebook('ep_senior2','m','t',st_succ); badge('ep_peer2')
 
-# ── 새 동료 에피소드 보상 ──
-def ep_sec1(cv):      # 자물쇠 냉장고
-    cv.rect(5,2,6,10,'s'); cv.vline(5,2,10,'S'); cv.hline(5,6,6,'S'); cv.rect(9,3,1,2,'G'); cv.rect(9,8,1,2,'G')
-    cv.rect(7,7,3,3,'y'); cv.hline(7,7,3,'Y'); cv.set(8,6,'q'); cv.set(7,5,'q'); cv.set(9,5,'q'); cv.set(8,8,'H')
-    cv.rect(2,4,2,2,'p'); cv.rect(12,9,2,2,'C')
-def ep_data1(cv):     # 점심 대시보드: 막대그래프 + 숟가락
-    cv.rect(2,2,12,7,'w'); cv.hline(2,8,12,'G')
-    for (x,h,c) in ((3,2,'B'),(5,4,'b'),(7,3,'m'),(9,5,'r'),(11,2,'y')): cv.rect(x,8-h,1,h,c)
-    cv.rect(5,10,5,1,'s'); cv.ell(11,10.5,1.2,0.8,'s')
-def ep_sre1(cv):      # 불어 버린 라면
-    cv.rect(3,9,10,3,'r'); cv.hline(2,9,12,'R'); cv.hline(4,12,8,'R')
-    for x in (4,6,8,10): cv.vline(x,6,3,'z')
-    cv.set(5,5,'y'); cv.set(9,5,'y'); cv.vline(12,3,6,'d'); cv.vline(13,3,6,'d')
-def ep_front1(cv):    # 반듯하게 줄 선 화분 셋
-    for x in (2,7,12):
-        cv.rect(x,9,3,3,'O'); cv.hline(x,9,3,'d'); cv.ell(x+1.5,7,1.6,1.6,'l','L'); cv.vline(x+1,4,2,'v')
-    cv.hline(1,12,14,'G'); cv.hline(1,3,14,'b')
-def ep_sales1(cv):    # 명함 탑
-    for i,y in enumerate((10,8,6,4,2)):
-        w=10-i*2; x=3+i; cv.rect(x,y,w,2,'w'); cv.hline(x,y,w,'g'); cv.set(x+1,y,'b' if i%2==0 else 'r')
-photo('ep_sec1','n','j','W',ep_sec1); photo('ep_data1','O','M','W',ep_data1); photo('ep_sre1','n','C','W',ep_sre1)
-photo('ep_front1','O','j','W',ep_front1); photo('ep_sales1','n','z','W',ep_sales1)
 
-def b_mail(cv):
-    cv.rect(3,3,8,5,'W'); cv.line(3,3,7,6,'G'); cv.line(10,3,7,6,'G'); cv.set(11,3,'r'); cv.hline(3,9,6,'G')
-def b_bars(cv):
-    for (x,h) in ((3,2),(5,4),(7,5)): cv.rect(x,9-h,1,h,'m')
-    cv.hline(3,3,6,'n'); cv.hline(9,6,2,'G')
-def b_bell(cv):
-    cv.ell(6.5,5.5,2.4,2.4,'y','Y'); cv.rect(4,6,6,2,'y'); cv.hline(4,8,6,'Y'); cv.set(6,9,'Y')
-    cv.line(9,2,4,9,'r')
-cert('ep_sec2','r',b_mail); cert('ep_data2','m',b_check); cert('ep_sre2','b',b_bell)
-cert('ep_front2','B',b_check); cert('ep_sales2','y',b_title)
-
-def st_lock(cv): cv.rect(6,10,3,2,'y'); cv.set(6,9,'q'); cv.set(8,9,'q'); cv.set(7,8,'q')
-def st_chart(cv): cv.vline(6,10,2,'b'); cv.vline(7,9,3,'m'); cv.vline(8,8,4,'r')
-def st_dice(cv): cv.rect(6,9,3,3,'w'); cv.set(6,9,'r'); cv.set(7,10,'r'); cv.set(8,11,'r')
-def st_eye(cv): cv.ell(7.5,10.5,2,1.2,'w'); cv.set(7,10,'n'); cv.set(8,10,'n')
-def st_q(cv): cv.hline(6,8,3,'y'); cv.set(8,9,'y'); cv.set(7,10,'y'); cv.set(7,12,'y')
-notebook('ep_sec3','n','r',st_lock); notebook('ep_data3','b','m',st_chart); notebook('ep_sre3','R','q',st_dice)
-notebook('ep_front3','m','b',st_eye); notebook('ep_sales3','N','y',st_q)
+# ── 리바희 에피소드 보상 ──
+def ep_bahee1(cv):    # 반짝이는 팀 책상: 깨끗한 책상 + 컵받침 위 검정 머그 + 반짝임
+    cv.rect(1,7,14,2,'o'); cv.hline(1,7,14,'h'); cv.vline(3,9,3,'d'); cv.vline(12,9,3,'d')
+    cv.rect(7,4,3,3,'k'); cv.hline(7,4,3,'q'); cv.set(10,5,'k'); cv.hline(6,7,5,'g')
+    for (x,y) in ((3,3),(12,2),(13,5)): cv.set(x,y,'i')
+    cv.set(2,2,'z'); cv.set(11,4,'z')
+photo('ep_bahee1','n','j','W',ep_bahee1)
+def ep_bahee2():      # "확인했나?" 검정 머그
+    cv=Cv(14,13); cv.rect(2,2,8,10,'k'); cv.hline(2,2,8,'q'); cv.vline(2,3,8,'E')
+    cv.rect(10,4,2,1,'k'); cv.rect(11,5,1,3,'k'); cv.rect(10,8,2,1,'k')
+    cv.hline(4,6,4,'w'); cv.set(5,8,'w'); cv.set(7,8,'w'); cv.hline(3,12,6,'E')
+    cv.outline(); save('ep_bahee2',cv)
+ep_bahee2()
+cert('ep_bahee3','m',b_check)
 
 used=set(''.join(''.join(r) for r in ART.values()))-{'.'}
 out=['// 자동 생성 파일: scripts/office-art.py 를 고친 뒤 python3 scripts/office-art.py 로 다시 만드세요.',

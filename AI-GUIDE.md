@@ -228,14 +228,16 @@ scripts/check-answers.ts  정답 자동 점검
 - 자체 상태바 여백을 넣는 머리글(홈 HUD, 사무실 `.office-head`)은 margin-top으로 body 여백만큼 올려 겹침 방지. 스크롤 고정 머리글(`.play-head`, `.rk-head`)은 top을 상태바 높이로.
 - 새 화면에 남색 머리글을 만들면 같은 규칙을 따를 것.
 
-## 17. 팀 구성·새 동료·연속 출석 칭호 (2026-11-27)
-- 동료는 8명: 원년 멤버 3명(`ORIGINAL_TEAM` = lead·senior·peer) + 새 동료 5명(`src/data/friends2.ts`의 `NEW_FRIENDS`, `rewards.ts`에서 `FRIENDS.push`).
-  - 한여름(sec, 보안팀 선임) · 도하나(data, 데이터 엔지니어) · 최고은(sre, SRE) · 오준서(front, 프론트엔드) · 강태풍(sales, 클라우드 영업).
-  - 외형은 `characters.ts`의 `CHARS`에 있음. 에피소드는 각 3편(팀워크 50/150/300), 보상 그림 `ep_<id>1..3`은 `scripts/office-art.py`에서 생성.
-  - 에피소드 원칙: 회사 일상 코미디 + 가벼운 AWS 개념. 연애 요소 금지, "나" 대사는 최소화.
-- 팀 구성: `Progress.team`(3명). `teamOf(p)`가 검증하고 없거나 잘못되면 원년 멤버로 돌아감. `setTeam`으로 저장.
-  - 사무실: `deskmates(team)` → `DESK_SEATS` 순서대로 앉음. 사무실 하단 "👥 팀 구성" 버튼 → `TeamSheet`.
-  - 홈 라운지: `LOBBY_SEATS` 순서대로 팀이 섬. "동료와 이야기하기" 퀘스트와 하단 메뉴 새 에피소드 점은 팀 기준.
-  - 팀에서 빠져도 팀워크·에피소드 기록은 유지. 새 동료는 프로젝트 대사에 없어서 팀워크는 이야기하기·간식으로만 오름.
-  - 팀 사진 액자(`team_photo`)·칭호 "팀의 신뢰"는 원년 멤버 3명 기준.
-- 연속 출석 칭호: `longestAttendance(p)`(가장 길게 이어진 출석 일수) 기준. att3 작심삼일 돌파 · att7 일주일 개근 · att14 2주 개근러 · att30 한 달 개근왕.
+## 17. 팀 구성·교체 인물·연속 출석 칭호 (2026-11-27)
+- 사무실·라운지 팀은 3명(`Progress.team`, `teamOf`/`setTeam`/`validTeam` in store.ts). 원년 멤버(lead·senior·peer) + 교체 인물 + 추가 동료 중에서 고름.
+  - 팀장·선배·동기 자리(`cast.ts`의 `SEATS`)는 팀에 한 명씩만. 같은 자리 사람을 고르면 기존 사람과 바뀜.
+  - `castOf(p)`: 팀 안의 교체 인물이 그 자리를 맡고, 팀에 없는 자리는 원년 멤버. App이 `castProject(project, castOf(progress))`로 넘겨 프로젝트 대화·퀴즈의 화자·말투가 바뀜. 대사 속 원년 멤버 이름도 지금 그 자리 사람 이름으로 바뀜. 동료 에피소드는 바꾸지 않음.
+  - 사무실 `deskmates(team)`·홈 `LOBBY_SEATS`는 팀 순서대로. "동료와 이야기하기" 퀘스트·새 에피소드 점은 팀 기준. "👥 팀 구성" 버튼은 동료가 3명보다 많을 때만.
+  - 교체 인물의 프로젝트 팀워크: 자기 자리가 나오는 프로젝트 완료를 함께한 것으로 침. 팀 사진 액자·칭호 "팀의 신뢰"는 원년 멤버 기준.
+- 교체 인물 추가: `characters.ts` CHARS(외형) → `cast.ts` ALTS `{ id, seat, voice }` → `friends2.ts` Friend(에피소드 3편, 보상 `ep_<id>1..3`) → `scripts/office-art.py` 보상 그림.
+  - `voice`: 그 자리 프로젝트 대사를 그 사람 말투로 다시 쓴 것(내용은 같게). 키는 `lineKey()` 형식, 원문 목록은 `npx tsx scripts/seat-lines.ts lead|senior|peer`. 없는 줄은 원래 대사.
+  - 추가 동료(프로젝트에 안 나오는 사람)는 ALTS 없이 CHARS + friends2.ts + 보상 그림만.
+  - 에피소드 원칙: 회사 일상 코미디 + 가벼운 AWS 개념. 연애 요소 금지, "나" 대사 최소화, 실존 작품 캐릭터 외형·설정 사용 금지.
+- 현재 교체 인물: 리바희(`bahee`, 팀장 자리). 짧고 담담한 반말(무례하지 않게), 깐깐하고 청결에 까다롭지만 챙겨 줌. 외형: 검은 가운데 가르마 앞머리(`curtain`), 가는 눈(`narrow`), 창백한 피부. 대사 `voice-bahee.ts`(팀장 대사 64줄 전부). 외형 옵션 `curtain` 머리·`narrow`·`rolled`·`watch`·`mug`·`tired`·`brow`(pixel.ts)는 리바희 때 추가.
+- 연속 출석 칭호: `longestAttendance(p)` 기준. att3 작심삼일 돌파 · att7 일주일 개근 · att14 2주 개근러 · att30 한 달 개근왕.
+- 사무실 머리글(`.office-head`)은 body가 상태바 여백을 주므로 위로 끌어올리지 않음.

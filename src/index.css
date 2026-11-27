@@ -2944,3 +2944,4 @@ body::before { content: ''; position: fixed; z-index: 1000; top: 0; left: 0; rig
 .team-meta { font-size: 11px !important; }
 .team-check { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line, #d5dbe6); display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 13px; font-family: var(--font-pixel, inherit); }
 .team-card.on .team-check { background: var(--accent, #3b6ff5); border-color: var(--accent, #3b6ff5); color: #fff; }
+.team-seat-tag { font-style: normal; font-size: 11px; font-weight: 700; color: var(--accent); background: #e9efff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }

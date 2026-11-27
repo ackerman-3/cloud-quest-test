@@ -764,9 +764,7 @@ export const FRIENDS: Friend[] = [
 
 /** 원년 멤버: 처음 사무실에 있는 세 명(프로젝트 대화에 등장, 팀 사진 액자 조건) */
 export const ORIGINAL_TEAM = ['lead', 'senior', 'peer']
-/** 사무실·라운지에 함께 있을 수 있는 동료 수 */
-export const TEAM_SIZE = 3
-// 교체 가능한 동료(friends2.ts)
+// 자리 교체 인물의 동료 정보·에피소드(friends2.ts, 자리는 cast.ts)
 FRIENDS.push(...NEW_FRIENDS)
 
 export const friend = (id: string) => FRIENDS.find((f) => f.id === id)!

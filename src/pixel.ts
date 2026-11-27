@@ -2,6 +2,7 @@
 export type Hair =
   | 'messy' // 부스스한 짧은 머리
   | 'side' // 옆가르마
+  | 'curtain' // 가운데 가르마, 눈썹까지 내려오는 둥근 앞머리
   | 'slick' // 넘긴 머리
   | 'buzz' // 짧게 민 머리
   | 'curly' // 곱슬
@@ -41,6 +42,12 @@ export interface Look {
   chain?: boolean // 은색 목걸이
   print?: boolean // 그래픽 티셔츠 프린트
   lips?: string // 입술 색
+  rolled?: boolean // 소매를 걷어 올린 셔츠
+  watch?: string // 왼손목 시계 색
+  mug?: string // 오른손에 든 머그컵 색
+  tired?: boolean // 옅은 다크서클
+  brow?: boolean // 한쪽 눈썹을 살짝 올린 표정
+  narrow?: boolean // 가늘고 긴 눈
 }
 
 export const W = 24
@@ -224,6 +231,26 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
   rect(4, 27, 5, 28, c.skin, 'skin')
   rect(18, 27, 19, 28, skinD, 'skin')
   set(4, 28, skinD, 'skin')
+  if (c.rolled) {
+    // 걷어 올린 소매: 접힌 단 + 드러난 팔뚝
+    rect(4, 23, 5, 23, tone(outer, 0.25), 'cloth')
+    rect(18, 23, 19, 23, tone(outer, 0.1), 'cloth')
+    rect(4, 24, 5, 26, c.skin, 'skin')
+    rect(18, 24, 19, 26, skinD, 'skin')
+    set(5, 24, skinD, 'skin')
+  }
+  if (c.watch) {
+    rect(4, 26, 5, 26, c.watch, 'acc')
+    set(5, 26, tone(c.watch, 0.4), 'acc')
+  }
+  if (c.mug) {
+    // 오른손에 든 작은 머그
+    rect(19, 25, 21, 28, c.mug, 'acc')
+    rect(19, 25, 21, 25, tone(c.mug, 0.55), 'acc')
+    for (let y = 26; y <= 28; y++) set(19, y, tone(c.mug, 0.25), 'acc')
+    set(22, 26, tone(c.mug, 0.2), 'acc')
+    set(22, 27, tone(c.mug, 0.2), 'acc')
+  }
 
   // ── 목 ──
   rect(10, 15, 13, 16, skinD, 'skin')
@@ -251,6 +278,20 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
     set(FL - 1, 13, ec, 'acc')
     set(FR + 1, 13, tone(ec, -0.15), 'acc')
   }
+
+  // 가운데 가르마 앞머리(눈썹을 덮으므로 이목구비를 그린 뒤 한 번 더 그린다)
+  const curtainBangs = () => {
+    // 2:8 가르마: 왼쪽은 짧게, 오른쪽으로 대부분 사선으로 넘어가 오른쪽 눈썹을 덮음
+    rect(FL, 7, 8, 7, c.hair, 'hair')
+    set(FL, 8, hairD, 'hair')
+    rect(11, 7, FR, 7, c.hair, 'hair')
+    rect(12, 8, FR, 8, c.hair, 'hair')
+    rect(14, 9, FR, 9, c.hair, 'hair')
+    set(11, 8, hairD, 'hair')
+    set(13, 9, hairD, 'hair')
+    set(FR, 10, hairD, 'hair')
+  }
+
 
   // ── 앞머리·윗머리 ──
   const cap = () => {
@@ -374,6 +415,18 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
       rect(FR + 1, 6, FR + 1, 9, hairD, 'hair')
       set(FR + 1, 12, hairD, 'hair')
       break
+    case 'curtain':
+      cap()
+      // 둥근 윗머리 + 왼쪽으로 치우친 가르마(2:8)
+      for (let y = 2; y <= 5; y++) set(9, y, hairD, 'hair')
+      set(9, 6, hairD, 'hair')
+      set(8, 6, hairD, 'hair')
+      set(10, 6, c.hair, 'hair')
+      curtainBangs()
+      // 귀를 살짝 덮는 옆머리
+      rect(FL - 1, 6, FL - 1, 11, hairD, 'hair')
+      rect(FR + 1, 6, FR + 1, 11, hairD, 'hair')
+      break
     case 'twoblock':
       shaded(6, 0, 17, 4, c.hair, 'hair', 8, 15)
       shaded(5, 2, 18, 5, c.hair, 'hair', 6, 17)
@@ -470,6 +523,40 @@ export function drawLook(c: Look, blink = false, talk = false): Grid {
     set(16, 8, lash, 'face')
     set(14, 8, tone(c.skin, -0.05), 'skin')
   }
+  if (c.narrow && !blink) {
+    // 가늘고 날카로운 눈: 긴 윗선 아래로 흰자 한 칸 + 폭 1칸 눈동자(2줄)
+    const lid = tone(c.hair, -0.1)
+    const white = '#f4f0ef'
+    const shade = '#e2d8d6'
+    rect(7, 9, 9, 9, lid, 'face')
+    rect(14, 9, 16, 9, lid, 'face')
+    set(6 + fs, 9, c.skin, 'skin')
+    rect(7, 10, 9, 11, c.skin, 'skin')
+    rect(14, 10, 16, 11, c.skin, 'skin')
+    set(8, 10, white, 'face')
+    set(9, 10, c.eye, 'face')
+    set(8, 11, shade, 'face')
+    set(9, 11, tone(c.eye, -0.4), 'face')
+    set(14, 10, c.eye, 'face')
+    set(15, 10, white, 'face')
+    set(14, 11, tone(c.eye, -0.4), 'face')
+    set(15, 11, shade, 'face')
+    // 올라간 눈꼬리
+    set(7, 10, tone(lid, 0.3), 'face')
+    set(16, 10, tone(lid, 0.3), 'face')
+  }
+  if (c.tired && !blink) {
+    set(8, 12, tone(c.skin, -0.12), 'face')
+    set(9, 12, tone(c.skin, -0.12), 'face')
+    set(14, 12, tone(c.skin, -0.12), 'face')
+    set(15, 12, tone(c.skin, -0.12), 'face')
+  }
+  if (c.brow) {
+    // 왼쪽(화면 오른쪽) 눈썹을 한 칸 올림
+    rect(14, 8, 16, 8, tone(c.skin, -0.05), 'skin')
+    rect(14, 7, 16, 7, lash, 'face')
+  }
+  if (c.hairStyle === 'curtain') curtainBangs()
   if (c.blush) {
     set(7, 13, tone('#f08a8a', 0.2), 'face')
     set(16, 13, '#e47a7a', 'face')

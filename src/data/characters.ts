@@ -11,6 +11,8 @@ export const CHARS: Record<string, CharCfg> = {
   lead: { name: '케이', role: '클라우드사업팀 팀장', skin: '#f8e0d0', hair: '#2a2326', hairStyle: 'shag', eye: '#55505a', top: '#b9d8f2', bottom: '#30343f', shoes: '#1d1d22', sharp: true, small: true, shirt: true },
   senior: { name: '변의주', role: '클라우드 아키텍트(선배)', skin: S.b, hair: '#5b3a28', hairStyle: 'side', eye: '#24232a', top: '#cfe0f2', jacket: '#7d8794', bottom: '#3c4352', shoes: '#4a3428', sharp: true, small: true },
   peer: { name: '니콜라스', role: '입사 동기', skin: '#fbe5d8', hair: '#f0a3bd', hairStyle: 'shag', eye: '#5b4e52', top: '#ececee', jacket: '#1f2026', bottom: '#26272d', shoes: '#18181c', earring: true, chain: true, print: true, sharp: true, small: true },
+  // 팀장 자리 교체 인물
+  bahee: { name: '리바희', role: '클라우드사업팀 팀장', skin: '#f8e8de', hair: '#17151a', hairStyle: 'curtain', eye: '#4a3028', narrow: true, top: '#8796ab', shirt: true, rolled: true, watch: '#141416', mug: '#26272c', bottom: '#2b2e36', shoes: '#1c1c20', sharp: true, small: true, tired: true },
   flower: { name: '김봄', role: '플로라 꽃방 대표', skin: S.a, hair: '#b0552e', hairStyle: 'long', eye: '#7a5b3a', top: '#f6eedf', jacket: '#7aa56d', bottom: '#5b5e66', shoes: '#6a4a35', blush: true },
   publisher: { name: '남궁준', role: '한빛나래출판 마케팅팀장', skin: S.b, hair: '#9a9ca2', hairStyle: 'side', eye: '#4c5566', top: '#f2efe6', jacket: '#7b5a3e', tie: '#a63c3c', bottom: '#3f3a35', shoes: '#2d2522', glasses: '#6b4a2a' },
   fashion: { name: '윤다은', role: '무드웨어 CTO', skin: S.a, hair: '#1f1d26', hairStyle: 'short-f', eye: '#3e3a4a', top: '#2c2c35', jacket: '#d9d4cc', bottom: '#2c2c35', shoes: '#f0f0f0', earring: true },
@@ -66,9 +68,4 @@ export const ME = { name: '나', role: '신입 아키텍트' }
 
 // 사무실 동료(교체 가능 멤버, 2026-11-27): 남 2(오준서·강태풍) · 여 3(한여름·도하나·최고은)
 Object.assign(CHARS, {
-  sec: { name: '한여름', role: '보안팀 선임', skin: S.a, hair: '#1d1b22', hairStyle: 'bob', eye: '#33303a', top: '#f4f6f8', jacket: '#2f5d62', bottom: '#2c3440', shoes: '#1a1a1a', badge: '#2f5d62', earring: true, small: true },
-  data: { name: '도하나', role: '데이터팀 데이터 엔지니어', skin: S.a, hair: '#6b4632', hairStyle: 'pony', eye: '#4a3a30', top: '#fff6e8', jacket: '#e9a8bd', bottom: '#4a5468', shoes: '#3a2f2a', glasses: '#7a5a44', blush: true, small: true },
-  sre: { name: '최고은', role: '운영팀 SRE', skin: S.b, hair: '#2c2a33', hairStyle: 'short-f', eye: '#3b3842', top: '#f2f2f2', jacket: '#d9584c', hoodie: true, bottom: '#2c2c35', shoes: '#eeeeee', headset: true, small: true },
-  front: { name: '오준서', role: '서비스개발팀 프론트엔드 개발자', skin: S.b, hair: '#3a2a24', hairStyle: 'curly', eye: '#3a2a20', top: '#ffffff', jacket: '#6b7fa8', bottom: '#2f3540', shoes: '#2a2a2a', glasses: '#2a2a2a', sharp: true, small: true },
-  sales: { name: '강태풍', role: '클라우드 영업팀 매니저', skin: S.c, hair: '#1b1b1f', hairStyle: 'twoblock', eye: '#2e2e36', top: '#ffffff', jacket: '#1f3a6b', tie: '#e0a23a', bottom: '#1f3a6b', shoes: '#2a1d14', badge: '#e0a23a', sharp: true },
 })
