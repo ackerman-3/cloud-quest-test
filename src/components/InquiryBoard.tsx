@@ -140,7 +140,7 @@ function BoardSession({ onBack, onLogin, cloud }: Props & { cloud: CloudState })
     {notice && <p className="ib-notice" role="status">{notice}</p>}
     {error && <div className="ib-error" role="alert">{error}{view === 'list' && <button type="button" onClick={() => setRefresh((n) => n + 1)}>다시 시도</button>}{view === 'detail' && !detail && <button type="button" onClick={toList}>목록으로</button>}</div>}
     {view === 'list' && <>
-      <section className="ib-intro"><div><small>CLOUD QUEST · OFFICE BOARD</small><h1>한 장의 메모를 남겨 주세요</h1><p>궁금한 점도, 있었으면 하는 기능도 편하게요.</p></div><button className="ib-primary" onClick={compose}>＋ 메모 남기기</button></section>
+      <section className="ib-intro"><div><small>CLOUD QUEST · OFFICE BOARD</small><h1>문의 게시판</h1><p>문의사항과 개선 의견을 남겨 주세요.</p></div><button className="ib-primary" onClick={compose}>＋ 메모 남기기</button></section>
       <div className="ib-tools"><div className="ib-tabs" aria-label="문의 유형">
         {[{ id: 'all', label: '전체' }, ...BOARD_CATEGORIES].map((c) => <button type="button" key={c.id} className={category === c.id ? 'active' : ''} aria-pressed={category === c.id} onClick={() => { setCategory(c.id as BoardCategory | 'all'); setPage(0) }}>{c.label}</button>)}
       </div><label className="ib-mine"><input type="checkbox" checked={mine} onChange={(e) => { setMine(e.target.checked); setPage(0) }} />내 글만</label></div>

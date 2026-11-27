@@ -361,7 +361,7 @@ export function Home({
           </button>
           <button className="lobby-inquiry" onClick={onBoard}>
             <span className="ib-mini-note" aria-hidden>✎</span>
-            <span><b>문의 게시판</b><small>궁금한 점 · 건의사항</small></span>
+            <span><b>문의 게시판</b></span>
           </button>
           {lobby.map((m) => (
             <button key={m.id} className="lobby-mate" style={{ left: `${m.x}%`, bottom: `${m.y}%`, zIndex: 30 - Math.round(m.y) }} onClick={onGift} aria-label={`${CHARS[m.id].name} — 사무실로 가기`}>
