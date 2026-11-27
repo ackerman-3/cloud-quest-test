@@ -2927,8 +2927,6 @@ html.home-dark body { background: var(--bg); }
 html { background: #16233f; }
 body { background: var(--bg); }
 body::before { content: ''; position: fixed; z-index: 1000; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: #16233f; pointer-events: none; }
-/* 자체적으로 상태바 여백을 넣는 남색 머리글은 body 여백과 겹치지 않게 위로 올림 */
-.office-head { margin-top: calc(-1 * env(safe-area-inset-top, 0px)); }
 /* 스크롤해도 따라오는 머리글은 상태바 띠 바로 아래에 붙음 */
 .play-head, .rk-head { top: env(safe-area-inset-top, 0px); }
 
