@@ -12,6 +12,7 @@ import { STUDY_URL } from '../data/links'
 import { FRIENDS, GOLD } from '../data/rewards'
 import { PixelArt } from './Office'
 import { AnimalAvatar } from './AnimalAvatar'
+import { ProfileEditor } from './ProfileEditor'
 import loungeImg from '../assets/lounge.webp'
 import { memento } from '../data/office'
 
@@ -39,6 +40,7 @@ import {
   today,
   todayCount,
   unlockedLevel,
+  ownedTitles,
   type Progress,
   type Session,
 } from '../store'
@@ -227,6 +229,7 @@ export function Home({
   const [showBackup, setShowBackup] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [accountMsg, setAccountMsg] = useState<string | null>(null)
+  const [editProfile, setEditProfile] = useState(false)
   const [askReset, setAskReset] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const unlocked = unlockedLevel(progress)
@@ -292,10 +295,19 @@ export function Home({
   return (
     <div className="home">
       {sheetNote && <NoteSheet note={sheetNote} onClose={() => setNoteOf(null)} />}
+      {editProfile && cloud.signedIn && (
+        <ProfileEditor
+          initial={{ nickname: cloud.nickname ?? '', avatar: cloud.avatar, title: cloud.title, status: cloud.status }}
+          seed={cloud.userId}
+          owned={ownedTitles(progress)}
+          onClose={() => setEditProfile(false)}
+          onSaved={() => setEditProfile(false)}
+        />
+      )}
       {section === 'home' && (
         <>
       <header className="hud">
-        <button className="hud-me" onClick={() => onTab('records')} aria-label="내 계정과 기록">
+        <button className="hud-me" onClick={() => (cloud.signedIn ? setEditProfile(true) : onTab('records'))} aria-label={cloud.signedIn ? '프로필 설정' : '로그인하러 가기'}>
           <span className={`hud-avatar ${cloud.signedIn ? 'pet' : ''}`}>{cloud.signedIn ? <AnimalAvatar name={cloud.avatar} seed={cloud.userId} /> : <PixelArt name="i_laptop" />}</span>
           <span className="hud-who">
             <b>
@@ -529,7 +541,7 @@ export function Home({
 
       {section === 'records' && (
         <>
-      <AccountCard onMessage={setAccountMsg} />
+      <AccountCard onMessage={setAccountMsg} progress={progress} />
       {accountMsg && <p className="ok-note account-msg">{accountMsg}</p>}
       <section className="card">
         <h2>학습 달력</h2>

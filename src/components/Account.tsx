@@ -1,6 +1,11 @@
 // 계정 카드(기록 탭)와 로그인·가입 시트
 import { useEffect, useState, type FormEvent } from 'react'
-import { demoMode, changeNickname, changePassword, memberCount, signIn, signOut, signUp, syncNow, useCloud, USERNAME_RE } from '../cloud'
+import { titleName } from '../data/ranking'
+import { randomNickname } from '../data/nicknames'
+import { ownedTitles, type Progress } from '../store'
+import { AnimalAvatar } from './AnimalAvatar'
+import { NicknameInput, ProfileEditor } from './ProfileEditor'
+import { demoMode, changePassword, memberCount, signIn, signOut, signUp, syncNow, useCloud, USERNAME_RE } from '../cloud'
 
 /** 홈 상단의 작은 계정 표시. 누르면 기록 탭의 계정 카드로 */
 export function AccountChip({ onOpen }: { onOpen: () => void }) {
@@ -14,9 +19,10 @@ export function AccountChip({ onOpen }: { onOpen: () => void }) {
   )
 }
 
-export function AccountCard({ onMessage }: { onMessage: (m: string) => void }) {
+export function AccountCard({ onMessage, progress }: { onMessage: (m: string) => void; progress: Progress }) {
   const c = useCloud()
-  const [sheet, setSheet] = useState<null | 'login' | 'signup' | 'nickname' | 'password'>(null)
+  const [sheet, setSheet] = useState<null | 'login' | 'signup' | 'password'>(null)
+  const [editing, setEditing] = useState(false)
   const [members, setMembers] = useState<number | null>(null)
   const [askLeave, setAskLeave] = useState(false)
 
@@ -54,22 +60,29 @@ export function AccountCard({ onMessage }: { onMessage: (m: string) => void }) {
         </>
       ) : (
         <>
-          <div className="account-me">
-            <div className="account-avatar" aria-hidden>
-              {(c.nickname ?? c.username ?? '?').slice(0, 1)}
-            </div>
-            <div>
+          <button className="account-me" onClick={() => setEditing(true)} aria-label="프로필 설정">
+            <span className="account-avatar pet" aria-hidden>
+              <AnimalAvatar name={c.avatar} seed={c.userId} />
+            </span>
+            <span className="account-me-text">
               <b className="account-nick">{c.nickname ?? c.username}</b>
-              <div className="muted small">@{c.username}</div>
-            </div>
-          </div>
+              <span className="muted small">
+                @{c.username}
+                {c.title && titleName(c.title) ? ` · ${titleName(c.title)}` : ''}
+              </span>
+              {c.status && <span className="account-status">{c.status}</span>}
+            </span>
+            <span className="account-edit" aria-hidden>
+              ✎
+            </span>
+          </button>
           {c.error && <div className="sync-line bad">⚠️ {c.error}</div>}
           <div className="row-wrap">
             <button className="small" disabled={c.syncing} onClick={() => void syncNow()}>
               새로고침
             </button>
-            <button className="small" onClick={() => setSheet('nickname')}>
-              닉네임 변경
+            <button className="small" onClick={() => setEditing(true)}>
+              프로필 설정
             </button>
             <button className="small" onClick={() => setSheet('password')}>
               비밀번호 변경
@@ -105,20 +118,30 @@ export function AccountCard({ onMessage }: { onMessage: (m: string) => void }) {
           )}
         </>
       )}
-      {sheet && <AuthSheet mode={sheet} nickname={c.nickname} onClose={() => setSheet(null)} onDone={done} onSwitch={setSheet} />}
+      {sheet && <AuthSheet mode={sheet} onClose={() => setSheet(null)} onDone={done} onSwitch={setSheet} />}
+      {editing && c.signedIn && (
+        <ProfileEditor
+          initial={{ nickname: c.nickname ?? '', avatar: c.avatar, title: c.title, status: c.status }}
+          seed={c.userId}
+          owned={ownedTitles(progress)}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false)
+            onMessage('프로필을 저장했어요.')
+          }}
+        />
+      )}
     </section>
   )
 }
 
 function AuthSheet({
   mode,
-  nickname: curNick,
   onClose,
   onDone,
   onSwitch,
 }: {
-  mode: 'login' | 'signup' | 'nickname' | 'password'
-  nickname?: string
+  mode: 'login' | 'signup' | 'password'
   onClose: () => void
   onDone: (m: string) => void
   onSwitch: (m: 'login' | 'signup') => void
@@ -126,7 +149,7 @@ function AuthSheet({
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
-  const [nickname, setNickname] = useState(mode === 'nickname' ? curNick ?? '' : '')
+  const [nickname, setNickname] = useState(mode === 'signup' ? randomNickname() : '')
   const [invite, setInvite] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -139,12 +162,11 @@ function AuthSheet({
     }
   }, [])
 
-  const title = { login: '로그인', signup: '초대 코드로 가입', nickname: '닉네임 변경', password: '비밀번호 변경' }[mode]
+  const title = { login: '로그인', signup: '초대 코드로 가입', password: '비밀번호 변경' }[mode]
   const uname = username.trim().toLowerCase()
 
   const check = (): string | null => {
     if (mode === 'login') return !uname || !password ? '아이디와 비밀번호를 입력해 주세요.' : null
-    if (mode === 'nickname') return nickname.trim() && [...nickname.trim()].length <= 12 ? null : '닉네임은 1~12자예요.'
     if (mode === 'signup') {
       if (!invite.trim()) return '초대 코드를 입력해 주세요.'
       if (!USERNAME_RE.test(uname)) return '아이디는 영문 소문자·숫자·밑줄(_)로 4~16자예요.'
@@ -164,10 +186,7 @@ function AuthSheet({
     try {
       if (mode === 'login') onDone(await signIn(uname, password))
       else if (mode === 'signup') onDone(`가입을 마쳤어요. ${await signUp({ username: uname, password, nickname: nickname.trim(), invite: invite.trim() })}`)
-      else if (mode === 'nickname') {
-        await changeNickname(nickname)
-        onDone('닉네임을 바꿨어요.')
-      } else {
+      else {
         await changePassword(password)
         onDone('비밀번호를 바꿨어요.')
       }
@@ -209,24 +228,22 @@ function AuthSheet({
               />
             </label>
           )}
-          {(mode === 'signup' || mode === 'nickname') && (
+          {mode === 'signup' && (
             <label>
               닉네임 <small className="muted">다른 참여자에게 보여요 · 최대 12자</small>
-              <input value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={12} autoComplete="nickname" />
+              <NicknameInput value={nickname} onChange={setNickname} />
             </label>
           )}
-          {mode !== 'nickname' && (
-            <label>
-              {mode === 'password' ? '새 비밀번호' : '비밀번호'}
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                placeholder={mode === 'login' ? '' : '6자 이상'}
-              />
-            </label>
-          )}
+          <label>
+            {mode === 'password' ? '새 비밀번호' : '비밀번호'}
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              placeholder={mode === 'login' ? '' : '6자 이상'}
+            />
+          </label>
           {(mode === 'signup' || mode === 'password') && (
             <label>
               비밀번호 확인

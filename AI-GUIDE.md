@@ -197,8 +197,8 @@ scripts/check-answers.ts  정답 자동 점검
 - 서버(Supabase)는 실제와 같은 프로젝트를 씀. 테스트 페이지에서는 테스트용 계정을 따로 만들어 쓰는 것을 권장(같은 계정으로 로그인하면 테스트에서 한 기록이 계정 기록에 합쳐짐).
 
 ## 14. 랭킹 (2026-11-27, 예전 기획명 "명예의 전당")
-- 진입: 홈 라운지 오른쪽 위 "랭킹" 블록(로그인 시 납품왕 내 순위 표시) → App view `ranking` → `components/Ranking.tsx`.
-- 분야·기준·칭호·프로필 이미지 설정: `src/data/ranking.ts`(CATEGORIES, PERIOD_LABEL, TITLES, AVATARS). 분야: 납품왕(완료 수에 반영된 완료 기록 수) / 사무실 금손(보유 가구+기념품 수) / 탕비실 인싸(세 동료 팀워크 합계). 집계 기간은 전체 기간만.
+- 진입: 홈 라운지 오른쪽 위 "랭킹" 블록(로그인 시 설계왕 내 순위 표시) → App view `ranking` → `components/Ranking.tsx`.
+- 분야·기준·칭호·프로필 이미지 설정: `src/data/ranking.ts`(CATEGORIES, PERIOD_LABEL, TITLES, AVATARS). 분야: 설계왕(완료 수에 반영된 완료 기록 수) / 사무실 금손(보유 가구+기념품 수) / 탕비실 인싸(세 동료 팀워크 합계). 집계 기간은 전체 기간만.
 - 서버: `supabase/ranking.sql`(schema.sql 끝에도 같은 내용). profiles에 avatar·title·status_msg(40자), 프로필 직접 조회는 본인만(로그인 아이디 비공개), `get_ranking()`이 닉네임·이미지·칭호·상태메시지·분야 기록을 돌려줌. `save_progress(data, base_rev, force, stats)`: 저장할 때 `rank_stats`가 projects는 기록에서 직접 세고, office·teamwork는 앱 값을 받되 기록으로 정한 상한(office ≤ 구매 가구 종류+본 에피소드+11, teamwork ≤ 간식 점수+대화 일수×3+완료×9)을 넘지 못하게 함.
 - 앱: store.ts `rankStats`(업로드 시 함께 보냄)·`ownedTitles`, cloud.ts `fetchRanking`·`updateProfile`.
 - 순위: 기록 0은 "미집계(-)", 같은 기록은 공동 순위(1,1,3). 내 행은 초록 배경+"나". 1~3위는 작은 원형 금·은·동 배지. 상태메시지는 한 줄 말줄임, 프로필에서 전체. 입력값은 모두 일반 텍스트로 표시(React 이스케이프).
@@ -211,3 +211,14 @@ scripts/check-answers.ts  정답 자동 점검
 - 프로필 사진: 동물 픽셀 아바타 12종(고양이·강아지·토끼·곰·판다·여우·개구리·펭귄·햄스터·병아리·코알라·돼지). `scripts/animal-art.py`가 `src/data/animalArt.ts`를 생성(그림을 고치면 스크립트 수정 후 `python3 scripts/animal-art.py`). 컴포넌트 `components/AnimalAvatar.tsx`.
 - 서버의 avatar 값이 동물 id가 아니면(예: 기본값 i_laptop) 사용자 id로 정해진 동물을 보여 줌(`animalFor`). 서버 SQL 변경 없음.
 - 로그인하면 홈 상단 바 프로필도 내 동물 사진으로 표시.
+
+### 14-2. 설계왕·프로필 설정 진입점·랜덤 닉네임 (2026-11-27)
+- 분야 이름 "납품왕" → "설계왕"(제목 "누가 가장 많이 설계했을까?"), 칭호 "첫 납품" → "첫 설계"(id는 first_project 그대로).
+- 프로필 설정 창을 `components/ProfileEditor.tsx`로 분리. 여는 곳: 랭킹의 내 프로필, 홈 상단 바 프로필(로그인 시, 로그인 전이면 기록 탭), 기록 탭 계정 카드(프로필 줄 또는 "프로필 설정" 버튼). 예전 "닉네임 변경" 창은 없앰.
+- 랜덤 닉네임: `src/data/nicknames.ts`(꾸밈말 20 × 이름 20, 12자 이하). 프로필 설정과 가입 화면 닉네임 칸 옆 "🎲 랜덤" 버튼, 가입 화면은 처음부터 랜덤 닉네임이 채워져 있음.
+
+## 15. 폰트 (2026-11-27)
+- 본문: Pretendard Variable(OFL). `src/main.tsx`에서 `pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css`를 불러옴 → 화면에 나온 글자의 조각 파일(woff2 92개)만 받음.
+- 포인트: Galmuri11 Bold(OFL, 픽셀 폰트) `src/assets/fonts/Galmuri11-Bold.woff2`, CSS 변수 `--font-pixel`. 짧은 제목·숫자·버튼에만 적용(index.css 맨 아래 "픽셀 포인트 폰트를 쓰는 곳" 선택자 목록). 긴 글(대화·퀴즈·노트)은 Pretendard.
+- 라이선스 문서: `src/assets/fonts/OFL-Pretendard.txt`, `OFL-Galmuri.md`.
+- 사용자가 넣어 둔 `fonts-src/`(G마켓 산스 OTF)는 쓰지 않음. .gitignore에 추가해 GitHub에 올라가지 않게 함.

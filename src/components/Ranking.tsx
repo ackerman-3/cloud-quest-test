@@ -1,10 +1,10 @@
 // 랭킹: 3개 분야(탭) · 상위 3명 시상대 · 4위부터 목록 · 아래 고정 "나" 바 · 프로필 보기/설정
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { demoMode, fetchRanking, updateProfile, useCloud, type RankRow } from '../cloud'
-import { ANIMALS } from '../data/animalArt'
-import { AVATARS, CATEGORIES, PERIOD_LABEL, QUESTIONS, TITLES, titleName, type CategoryId } from '../data/ranking'
+import { demoMode, fetchRanking, useCloud, type RankRow } from '../cloud'
+import { CATEGORIES, PERIOD_LABEL, QUESTIONS, titleName, type CategoryId } from '../data/ranking'
 import { ownedTitles, type Progress } from '../store'
-import { AnimalAvatar, animalFor } from './AnimalAvatar'
+import { AnimalAvatar } from './AnimalAvatar'
+import { ProfileEditor } from './ProfileEditor'
 import { PixelArt } from './Office'
 
 type Ranked = RankRow & { rank: number | null; tie: boolean }
@@ -264,7 +264,8 @@ export function Ranking({ progress, onBack, onLogin }: { progress: Progress; onB
 
       {editing && shown?.is_me && (
         <ProfileEditor
-          me={shown}
+          initial={{ nickname: shown.nickname, avatar: shown.avatar, title: shown.title, status: shown.status_msg }}
+          seed={shown.user_id}
           owned={ownedTitles(progress)}
           onClose={() => setEditing(false)}
           onSaved={() => {
@@ -273,85 +274,6 @@ export function Ranking({ progress, onBack, onLogin }: { progress: Progress; onB
           }}
         />
       )}
-    </div>
-  )
-}
-
-function ProfileEditor({ me, owned, onClose, onSaved }: { me: RankRow; owned: Set<string>; onClose: () => void; onSaved: () => void }) {
-  const [avatar, setAvatar] = useState(animalFor(me.avatar, me.user_id))
-  const [nickname, setNickname] = useState(me.nickname)
-  const [title, setTitle] = useState(owned.has(me.title) ? me.title : '')
-  const [status, setStatus] = useState(me.status_msg)
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-  const left = 40 - [...status].length
-
-  const save = async () => {
-    setBusy(true)
-    setErr(null)
-    try {
-      await updateProfile({ nickname, avatar, title, status })
-      onSaved()
-    } catch (e) {
-      setErr((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <div className="sheet-back" onClick={onClose}>
-      <div className="sheet rk-edit" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필 설정">
-        <header className="sheet-head">
-          <b>프로필 설정</b>
-          <button className="ghost small" onClick={onClose}>
-            닫기
-          </button>
-        </header>
-        <div className="sheet-body auth-form">
-          <div className="rk-edit-preview">
-            <AnimalAvatar name={avatar} className="rk-p-pet" />
-            <small>{ANIMALS[avatar]?.label}</small>
-          </div>
-          <div>
-            <b className="rk-label">프로필 사진</b>
-            <div className="rk-avatars">
-              {AVATARS.map((a) => (
-                <button key={a} className={avatar === a ? 'on' : ''} onClick={() => setAvatar(a)} aria-label={ANIMALS[a].label} aria-pressed={avatar === a}>
-                  <AnimalAvatar name={a} />
-                </button>
-              ))}
-            </div>
-          </div>
-          <label>
-            닉네임 <small className="muted">최대 12자</small>
-            <input value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={12} />
-          </label>
-          <label>
-            대표 칭호 <small className="muted">보유한 칭호 중에서 골라요</small>
-            <select value={title} onChange={(e) => setTitle(e.target.value)}>
-              <option value="">표시 안 함</option>
-              {TITLES.map((t) => (
-                <option key={t.id} value={t.id} disabled={!owned.has(t.id)}>
-                  {t.name}
-                  {owned.has(t.id) ? '' : ` (잠김: ${t.how})`}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            상태메시지 <small className="muted">{left}자 남음 · 비워 둬도 돼요</small>
-            <input value={status} onChange={(e) => setStatus([...e.target.value].slice(0, 40).join(''))} placeholder="오늘도 설계 한 걸음 더." />
-          </label>
-          {err && <p className="auth-err">{err}</p>}
-          <div className="rk-edit-actions">
-            <button onClick={onClose}>취소</button>
-            <button className="primary" disabled={busy} onClick={save}>
-              {busy ? '저장 중…' : '저장'}
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

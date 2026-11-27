@@ -1,3 +1,11 @@
+/* 픽셀 포인트 폰트: Galmuri11 Bold (OFL, src/assets/fonts). 짧은 제목·숫자·버튼에만 --font-pixel로 쓴다 */
+@font-face {
+  font-family: 'Galmuri11';
+  src: url('./assets/fonts/Galmuri11-Bold.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   --navy: #13213c;
   --navy2: #1f3358;
@@ -11,7 +19,8 @@
   --bad: #d64545;
   --warn: #c98a12;
   --radius: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+  --font-pixel: 'Galmuri11', 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
   color: var(--ink);
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
@@ -2892,3 +2901,22 @@ html.home-dark body { background: var(--bg); }
 .ranking { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 .rk-mebar { left: 10px; right: 10px; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); border-radius: 16px; }
 @media (min-width: 700px) { .rk-mebar { left: 0; right: 0; } }
+.nick-input { display: flex; gap: 6px; }
+.nick-input input { flex: 1; min-width: 0; }
+.nick-dice { flex: none; min-height: 0; padding: 0 12px; border-radius: 10px; background: #f1f4f9; border: 1px solid var(--line); font-weight: 700; font-size: 14px; }
+.nick-dice:active { transform: translateY(1px); }
+.account-me { width: 100%; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding: 8px; min-height: 0; border: 1.5px solid #e3e8f2; border-radius: 14px; background: #fafbfd; text-align: left; }
+.account-avatar.pet { width: 52px; height: 52px; border-radius: 50%; background: #f3f5f9; padding: 4px; }
+.account-avatar.pet svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.account-me-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.account-status { font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.account-edit { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #eef1f6; color: var(--sub); font-size: 15px; }
+
+/* 픽셀 포인트 폰트를 쓰는 곳: 짧은 제목·숫자·버튼(긴 글은 Pretendard 그대로) */
+.card h2, .hud-who b, .hud-chip, .lobby-goal b, .lobby-rank b, .mission h2, .mission-kicker, .play-btn, .q-count,
+.rk-head b, .rk-intro h1, .rk-tabs button, .rk-seat-score, .rk-score, .rk-rank, .rk-crown b, .rk-board-head b, .rk-mebar .rk-who b,
+.office-head h1, .bottom-nav button > span:last-child {
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  letter-spacing: 0;
+}

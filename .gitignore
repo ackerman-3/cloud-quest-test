@@ -5,3 +5,6 @@ dist-single
 unused/
 *.log
 .DS_Store
+
+# 쓰지 않는 원본 폰트 파일
+fonts-src/

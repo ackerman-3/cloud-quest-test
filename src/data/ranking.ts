@@ -13,7 +13,7 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'projects', name: '납품왕', rule: '완료한 프로젝트 수 기준', unit: '건', icon: 'i_clip' },
+  { id: 'projects', name: '설계왕', rule: '완료한 프로젝트 수 기준', unit: '건', icon: 'i_clip' },
   { id: 'office', name: '사무실 금손', rule: '보유한 가구·기념품 수 기준', unit: '개', icon: 'icon_desk' },
   { id: 'teamwork', name: '탕비실 인싸', rule: '세 동료 팀워크 합계 기준', unit: '점', icon: 'r_lead' },
 ]
@@ -26,7 +26,7 @@ export { ANIMAL_IDS as AVATARS } from './animalArt'
 
 /** 분야별 랭킹 화면 제목 */
 export const QUESTIONS: Record<CategoryId, string> = {
-  projects: '누가 가장 많이 납품했을까?',
+  projects: '누가 가장 많이 설계했을까?',
   office: '누구 사무실이 가장 멋질까?',
   teamwork: '누가 동료들과 가장 가까울까?',
 }
@@ -40,7 +40,7 @@ export interface Title {
 
 export const TITLES: Title[] = [
   { id: 'rookie', name: '신입 아키텍트', how: '처음부터 보유' },
-  { id: 'first_project', name: '첫 납품', how: '첫 프로젝트 완료' },
+  { id: 'first_project', name: '첫 설계', how: '첫 프로젝트 완료' },
   { id: 'perfect', name: '완벽주의자', how: '프로젝트를 별 3개로 완료' },
   { id: 'ten', name: '의뢰 수집가', how: '서로 다른 프로젝트 10개 완료' },
   { id: 'streak7', name: '꾸준함의 아이콘', how: '7일 연속 학습' },
