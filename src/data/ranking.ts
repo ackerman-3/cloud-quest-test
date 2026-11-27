@@ -21,8 +21,15 @@ export const CATEGORIES: Category[] = [
 /** 집계 기간(지금은 전체 기간만 지원) */
 export const PERIOD_LABEL = '전체 기간'
 
-/** 프로필 이미지로 고를 수 있는 픽셀 아이콘(사람 얼굴 없이) */
-export const AVATARS = ['i_laptop', 'i_cloud', 'i_server', 'i_stack', 'i_book', 'i_chart', 'i_search', 'i_lock', 'm_mug', 'm_star', 'm_medal', 'r_senior'] as const
+/** 프로필 사진으로 고를 수 있는 동물(data/animalArt.ts) */
+export { ANIMAL_IDS as AVATARS } from './animalArt'
+
+/** 분야별 랭킹 화면 제목 */
+export const QUESTIONS: Record<CategoryId, string> = {
+  projects: '누가 가장 많이 납품했을까?',
+  office: '누구 사무실이 가장 멋질까?',
+  teamwork: '누가 동료들과 가장 가까울까?',
+}
 
 /** 공통 칭호. 모든 분야에서 같은 칭호를 쓰고, 조건은 앱 기록에서 판단한다 */
 export interface Title {

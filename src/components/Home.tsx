@@ -11,6 +11,7 @@ import { Sprite } from './Sprite'
 import { STUDY_URL } from '../data/links'
 import { FRIENDS, GOLD } from '../data/rewards'
 import { PixelArt } from './Office'
+import { AnimalAvatar } from './AnimalAvatar'
 import loungeImg from '../assets/lounge.webp'
 import { memento } from '../data/office'
 
@@ -295,7 +296,7 @@ export function Home({
         <>
       <header className="hud">
         <button className="hud-me" onClick={() => onTab('records')} aria-label="내 계정과 기록">
-          <span className="hud-avatar">{cloud.signedIn ? (cloud.nickname ?? cloud.username ?? '?').slice(0, 1) : <PixelArt name="i_laptop" />}</span>
+          <span className={`hud-avatar ${cloud.signedIn ? 'pet' : ''}`}>{cloud.signedIn ? <AnimalAvatar name={cloud.avatar} seed={cloud.userId} /> : <PixelArt name="i_laptop" />}</span>
           <span className="hud-who">
             <b>
               {IS_TEST && <em className="test-badge">테스트</em>}

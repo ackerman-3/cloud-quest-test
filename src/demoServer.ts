@@ -15,7 +15,7 @@ interface DemoState {
   pw: Record<string, string>
   progress: Record<string, { data: unknown; rev: number; stats?: Record<string, number> }>
 }
-const KEY = 'cloud-quest-demo-server-v2'
+const KEY = 'cloud-quest-demo-server-v3'
 
 function load(): DemoState {
   try {
@@ -27,10 +27,10 @@ function load(): DemoState {
   return {
     // 미리보기용 예시 참여자(실제 사용자 아님)
     profiles: {
-      'demo-1': { username: 'cloud_dev', nickname: '구름위설계자', avatar: 'i_cloud', title: 'perfect', status_msg: '복잡한 구성도 깔끔하게.' },
-      'demo-2': { username: 'server_cup', nickname: '서버한잔', avatar: 'm_mug', title: 'streak7', status_msg: '하루 한 문제, 꾸준히.' },
-      'demo-3': { username: 'net_forest', nickname: '네트워크숲', avatar: 'i_server', title: 'decorator', status_msg: '연결될 때까지 생각하기. 서브넷은 넉넉하게, 보안 그룹은 좁게 잡는 게 원칙이에요.' },
-      'demo-4': { username: 'morning_c', nickname: '모닝클라우드', avatar: 'i_book', title: 'first_project', status_msg: '' },
+      'demo-1': { username: 'cloud_dev', nickname: '구름위설계자', avatar: 'a_cat', title: 'perfect', status_msg: '복잡한 구성도 깔끔하게.' },
+      'demo-2': { username: 'server_cup', nickname: '서버한잔', avatar: 'a_hamster', title: 'streak7', status_msg: '하루 한 문제, 꾸준히.' },
+      'demo-3': { username: 'net_forest', nickname: '네트워크숲', avatar: 'a_panda', title: 'decorator', status_msg: '연결될 때까지 생각하기. 서브넷은 넉넉하게, 보안 그룹은 좁게 잡는 게 원칙이에요.' },
+      'demo-4': { username: 'morning_c', nickname: '모닝클라우드', avatar: 'a_rabbit', title: 'first_project', status_msg: '' },
     },
     pw: {},
     progress: {
