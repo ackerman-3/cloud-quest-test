@@ -15,7 +15,7 @@ export const CHARS: Record<string, CharCfg> = {
   senior: { name: '변의주', role: '클라우드 아키텍트(선배)', skin: S.b, hair: '#5b3a28', hairStyle: 'side', eye: '#24232a', top: '#cfe0f2', jacket: '#7d8794', bottom: '#3c4352', shoes: '#4a3428', sharp: true, small: true },
   peer: { name: '니콜라스', role: '입사 동기', skin: '#fbe5d8', hair: '#f0a3bd', hairStyle: 'shag', eye: '#5b4e52', top: '#ececee', jacket: '#1f2026', bottom: '#26272d', shoes: '#18181c', earring: true, chain: true, print: true, sharp: true, small: true },
   // 팀장 자리 교체 인물
-  bahee: { name: '리바희', role: '클라우드사업팀 팀장', skin: '#f8e8de', hair: '#17151a', hairStyle: 'curtain', eye: '#4a3028', narrow: true, top: '#8796ab', shirt: true, rolled: true, watch: '#141416', mug: '#26272c', bottom: '#2b2e36', shoes: '#1c1c20', sharp: true, small: true, tired: true },
+  bahee: { name: '리바희', role: '클라우드사업팀 팀장', skin: '#f8e8de', hair: '#17151a', hairStyle: 'curtain', eye: '#4a3028', top: '#8796ab', shirt: true, rolled: true, watch: '#141416', mug: '#26272c', bottom: '#2b2e36', shoes: '#1c1c20', sharp: true, small: true },
   // 선배 자리 교체 인물
   jiae: { name: '한지애', role: '연구개발 리더(선배)', skin: '#f4d8c2', hair: '#5a2e22', hairStyle: 'lowpony', eye: '#b06a22', top: '#f3ead8', jacket: '#1f5c5a', bottom: '#3a3f4a', shoes: '#4a3428', glasses: '#7d8248', softGlasses: true, smirk: true, small: true },
   // 동기 자리 교체 인물
