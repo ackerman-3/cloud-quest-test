@@ -63,3 +63,12 @@ Object.assign(CHARS, {
 })
 
 export const ME = { name: '나', role: '신입 아키텍트' }
+
+// 사무실 동료(교체 가능 멤버, 2026-11-27): 남 2(오준서·강태풍) · 여 3(한여름·도하나·최고은)
+Object.assign(CHARS, {
+  sec: { name: '한여름', role: '보안팀 선임', skin: S.a, hair: '#1d1b22', hairStyle: 'bob', eye: '#33303a', top: '#f4f6f8', jacket: '#2f5d62', bottom: '#2c3440', shoes: '#1a1a1a', badge: '#2f5d62', earring: true, small: true },
+  data: { name: '도하나', role: '데이터팀 데이터 엔지니어', skin: S.a, hair: '#6b4632', hairStyle: 'pony', eye: '#4a3a30', top: '#fff6e8', jacket: '#e9a8bd', bottom: '#4a5468', shoes: '#3a2f2a', glasses: '#7a5a44', blush: true, small: true },
+  sre: { name: '최고은', role: '운영팀 SRE', skin: S.b, hair: '#2c2a33', hairStyle: 'short-f', eye: '#3b3842', top: '#f2f2f2', jacket: '#d9584c', hoodie: true, bottom: '#2c2c35', shoes: '#eeeeee', headset: true, small: true },
+  front: { name: '오준서', role: '서비스개발팀 프론트엔드 개발자', skin: S.b, hair: '#3a2a24', hairStyle: 'curly', eye: '#3a2a20', top: '#ffffff', jacket: '#6b7fa8', bottom: '#2f3540', shoes: '#2a2a2a', glasses: '#2a2a2a', sharp: true, small: true },
+  sales: { name: '강태풍', role: '클라우드 영업팀 매니저', skin: S.c, hair: '#1b1b1f', hairStyle: 'twoblock', eye: '#2e2e36', top: '#ffffff', jacket: '#1f3a6b', tie: '#e0a23a', bottom: '#1f3a6b', shoes: '#2a1d14', badge: '#e0a23a', sharp: true },
+})

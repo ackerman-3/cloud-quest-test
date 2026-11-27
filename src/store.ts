@@ -1,6 +1,6 @@
 import { PROJECTS, LEVELS } from './data/projects'
 import { KEY_PREFIX } from './env'
-import { ATTEND_GOLD, FRIENDS, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
+import { ATTEND_GOLD, FRIENDS, ORIGINAL_TEAM, TEAM_SIZE, LEVEL_GOLD, PRACTICE_PEEK_RATE, PRACTICE_RATE, PROJECT_POINTS, REVIEW_RATE, STAR_BONUS, TALK_POINTS } from './data/rewards'
 import { DEFAULT_PLACED, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS } from './data/office'
 import type { Design } from './types'
 import { TITLES } from './data/ranking'
@@ -38,6 +38,8 @@ export interface Progress {
   seenEpisodes?: string[]
   /** 클리어한 프로젝트의 퀴즈·구성도만 다시 한 기록(완료 수·별·승급에는 반영 안 함) */
   practices?: Practice[]
+  /** 사무실·라운지에 함께 있는 동료 3명(없으면 원년 멤버) */
+  team?: string[]
 }
 
 export type PracticeKind = 'quiz' | 'design'
@@ -418,7 +420,7 @@ export function earnedMementos(p: Progress) {
     r_lead: (tw.lead ?? 0) >= RELATION_PROP_NEED,
     r_senior: (tw.senior ?? 0) >= RELATION_PROP_NEED,
     r_peer: (tw.peer ?? 0) >= RELATION_PROP_NEED,
-    team_photo: FRIENDS.every((f) => (tw[f.id] ?? 0) >= RELATION_PROP_NEED),
+    team_photo: ORIGINAL_TEAM.every((id) => (tw[id] ?? 0) >= RELATION_PROP_NEED),
   }
   const seen = new Set(p.seenEpisodes ?? [])
   return new Set(MEMENTOS.filter((m) => (m.episode ? seen.has(m.episode) : ok[m.id])).map((m) => m.id))
@@ -458,6 +460,37 @@ export function ownedTitles(p: Progress) {
     all_clear: m.has('m_all'),
     decorator: bought >= 3,
     team_player: m.has('team_photo'),
+    att3: longestAttendance(p) >= 3,
+    att7: longestAttendance(p) >= 7,
+    att14: longestAttendance(p) >= 14,
+    att30: longestAttendance(p) >= 30,
   }
   return new Set(TITLES.filter((t) => has[t.id]).map((t) => t.id))
+}
+
+// ── 팀 구성(사무실·라운지에 있는 동료 3명) ──
+export function teamOf(p: Progress): string[] {
+  const ok = (p.team ?? []).filter((id, i, a) => FRIENDS.some((f) => f.id === id) && a.indexOf(id) === i)
+  return ok.length === TEAM_SIZE ? ok : [...ORIGINAL_TEAM]
+}
+export function setTeam(p: Progress, ids: string[]): Progress {
+  return { ...p, team: ids.slice(0, TEAM_SIZE) }
+}
+
+/** 출석이 가장 길게 이어진 일수 */
+export function longestAttendance(p: Progress) {
+  const days = [...new Set(p.attendance ?? [])].sort()
+  let best = 0
+  let run = 0
+  let prev: string | null = null
+  for (const d of days) {
+    if (prev) {
+      const t = new Date(prev + 'T00:00:00')
+      t.setDate(t.getDate() + 1)
+      run = today(t) === d ? run + 1 : 1
+    } else run = 1
+    best = Math.max(best, run)
+    prev = d
+  }
+  return best
 }

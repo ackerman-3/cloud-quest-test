@@ -1,6 +1,7 @@
 // 보상(골드)·간식·팀워크·동료 에피소드 데이터
 // 저장 데이터 호환: 간식 기록은 Progress.gifts, 팀워크 점수 기준은 예전 호감도 수치를 그대로 이어서 쓴다.
 import type { Line, SceneName, TalkItem } from '../types'
+import { NEW_FRIENDS } from './friends2'
 
 /** 화폐 단위 */
 export const GOLD = 'G'
@@ -760,6 +761,13 @@ export const FRIENDS: Friend[] = [
     ],
   },
 ]
+
+/** 원년 멤버: 처음 사무실에 있는 세 명(프로젝트 대화에 등장, 팀 사진 액자 조건) */
+export const ORIGINAL_TEAM = ['lead', 'senior', 'peer']
+/** 사무실·라운지에 함께 있을 수 있는 동료 수 */
+export const TEAM_SIZE = 3
+// 교체 가능한 동료(friends2.ts)
+FRIENDS.push(...NEW_FRIENDS)
 
 export const friend = (id: string) => FRIENDS.find((f) => f.id === id)!
 

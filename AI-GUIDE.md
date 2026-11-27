@@ -222,3 +222,20 @@ scripts/check-answers.ts  정답 자동 점검
 - 포인트: Galmuri11 Bold(OFL, 픽셀 폰트) `src/assets/fonts/Galmuri11-Bold.woff2`, CSS 변수 `--font-pixel`. 짧은 제목·숫자·버튼에만 적용(index.css 맨 아래 "픽셀 포인트 폰트를 쓰는 곳" 선택자 목록). 긴 글(대화·퀴즈·노트)은 Pretendard.
 - 라이선스 문서: `src/assets/fonts/OFL-Pretendard.txt`, `OFL-Galmuri.md`.
 - 사용자가 넣어 둔 `fonts-src/`(G마켓 산스 OTF)는 쓰지 않음. .gitignore에 추가해 GitHub에 올라가지 않게 함.
+
+## 16. 상태바 자리 (2026-11-27)
+- 홈 화면 앱(black-translucent 상태바)에서 상태바 자리가 밝은 바탕이면 흰 공백처럼 보이고 시계 글자가 묻힘. index.css 맨 아래: html 배경 남색, `body::before`가 상태바 높이만큼 고정 남색 띠, 화면 바탕은 body.
+- 자체 상태바 여백을 넣는 머리글(홈 HUD, 사무실 `.office-head`)은 margin-top으로 body 여백만큼 올려 겹침 방지. 스크롤 고정 머리글(`.play-head`, `.rk-head`)은 top을 상태바 높이로.
+- 새 화면에 남색 머리글을 만들면 같은 규칙을 따를 것.
+
+## 17. 팀 구성·새 동료·연속 출석 칭호 (2026-11-27)
+- 동료는 8명: 원년 멤버 3명(`ORIGINAL_TEAM` = lead·senior·peer) + 새 동료 5명(`src/data/friends2.ts`의 `NEW_FRIENDS`, `rewards.ts`에서 `FRIENDS.push`).
+  - 한여름(sec, 보안팀 선임) · 도하나(data, 데이터 엔지니어) · 최고은(sre, SRE) · 오준서(front, 프론트엔드) · 강태풍(sales, 클라우드 영업).
+  - 외형은 `characters.ts`의 `CHARS`에 있음. 에피소드는 각 3편(팀워크 50/150/300), 보상 그림 `ep_<id>1..3`은 `scripts/office-art.py`에서 생성.
+  - 에피소드 원칙: 회사 일상 코미디 + 가벼운 AWS 개념. 연애 요소 금지, "나" 대사는 최소화.
+- 팀 구성: `Progress.team`(3명). `teamOf(p)`가 검증하고 없거나 잘못되면 원년 멤버로 돌아감. `setTeam`으로 저장.
+  - 사무실: `deskmates(team)` → `DESK_SEATS` 순서대로 앉음. 사무실 하단 "👥 팀 구성" 버튼 → `TeamSheet`.
+  - 홈 라운지: `LOBBY_SEATS` 순서대로 팀이 섬. "동료와 이야기하기" 퀘스트와 하단 메뉴 새 에피소드 점은 팀 기준.
+  - 팀에서 빠져도 팀워크·에피소드 기록은 유지. 새 동료는 프로젝트 대사에 없어서 팀워크는 이야기하기·간식으로만 오름.
+  - 팀 사진 액자(`team_photo`)·칭호 "팀의 신뢰"는 원년 멤버 3명 기준.
+- 연속 출석 칭호: `longestAttendance(p)`(가장 길게 이어진 출석 일수) 기준. att3 작심삼일 돌파 · att7 일주일 개근 · att14 2주 개근러 · att30 한 달 개근왕.

@@ -18,10 +18,10 @@ import { memento } from '../data/office'
 
 const PAGE_SIZE = 5
 /** 홈 라운지 장면의 동료 위치(장면 너비 %, 바닥에서 높이 %) */
-const LOBBY: { id: string; x: number; y: number; flip?: boolean }[] = [
-  { id: 'senior', x: 30, y: 21 },
-  { id: 'lead', x: 50, y: 14 },
-  { id: 'peer', x: 70, y: 19, flip: true },
+const LOBBY_SEATS: { x: number; y: number; flip?: boolean }[] = [
+  { x: 50, y: 14 },
+  { x: 30, y: 21 },
+  { x: 70, y: 19, flip: true },
 ]
 import {
   affinity,
@@ -43,6 +43,7 @@ import {
   ownedTitles,
   type Progress,
   type Session,
+  teamOf,
 } from '../store'
 
 function Calendar({ p }: { p: Progress }) {
@@ -277,11 +278,13 @@ export function Home({
 
   const streakDays = streak(progress)
   const xpPct = nextL ? Math.min(100, (doneProjects(progress, unlocked).length / nextL.need) * 100) : 100
-  const talkedFriends = FRIENDS.filter((f) => (progress.talks ?? []).some((t) => t.to === f.id && t.date === today())).length
+  const team = teamOf(progress)
+  const lobby = team.map((id, i) => ({ id, ...LOBBY_SEATS[i] }))
+  const talkedFriends = team.filter((id) => (progress.talks ?? []).some((t) => t.to === id && t.date === today())).length
   const quests: { label: string; count: string; done: boolean; go?: () => void }[] = [
     { label: '출석하기', count: progress.attendance?.includes(today()) ? '1/1' : '0/1', done: !!progress.attendance?.includes(today()) },
     { label: `프로젝트 ${goal}건 완료`, count: `${Math.min(tCount, goal)}/${goal}`, done: tCount >= goal, go: () => (nextRec ? onStart(nextRec.id) : onTab('projects')) },
-    { label: '동료와 이야기하기', count: `${talkedFriends}/${FRIENDS.length}`, done: talkedFriends >= FRIENDS.length, go: onGift },
+    { label: '동료와 이야기하기', count: `${talkedFriends}/${team.length}`, done: talkedFriends >= team.length, go: onGift },
   ]
   const questsDone = quests.filter((q) => q.done).length
   const mission = sessionProject ?? nextRec
@@ -354,7 +357,7 @@ export function Home({
               <small>{cloud.signedIn ? myRank ?? '내 순위 보기' : '참여자 순위'}</small>
             </span>
           </button>
-          {LOBBY.map((m) => (
+          {lobby.map((m) => (
             <button key={m.id} className="lobby-mate" style={{ left: `${m.x}%`, bottom: `${m.y}%`, zIndex: 30 - Math.round(m.y) }} onClick={onGift} aria-label={`${CHARS[m.id].name} — 사무실로 가기`}>
               {newEpOf(m.id) && <i className="lobby-new">!</i>}
               <Sprite cfg={CHARS[m.id]} flip={m.flip} className="lobby-sprite" />

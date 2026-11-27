@@ -48,7 +48,11 @@ export const TITLES: Title[] = [
   { id: 'senior', name: '시니어 아키텍트', how: '시니어로 승급' },
   { id: 'all_clear', name: '올 클리어', how: '모든 프로젝트 완료' },
   { id: 'decorator', name: '인테리어 감각', how: '가구 3개 구매' },
-  { id: 'team_player', name: '팀의 신뢰', how: '세 동료 모두와 "믿음직한 동료"' },
+  { id: 'team_player', name: '팀의 신뢰', how: '케이·변의주·니콜라스 모두와 "믿음직한 동료"' },
+  { id: 'att3', name: '작심삼일 돌파', how: '3일 연속 출석' },
+  { id: 'att7', name: '일주일 개근', how: '7일 연속 출석' },
+  { id: 'att14', name: '2주 개근러', how: '14일 연속 출석' },
+  { id: 'att30', name: '한 달 개근왕', how: '30일 연속 출석' },
 ]
 
 export const titleName = (id?: string | null) => TITLES.find((t) => t.id === id)?.name ?? ''

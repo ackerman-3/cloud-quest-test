@@ -2920,3 +2920,29 @@ html.home-dark body { background: var(--bg); }
   font-weight: 700;
   letter-spacing: 0;
 }
+
+/* ── 아이폰 상태바 자리: 모든 화면에서 남색으로 채움 (2026-11-27) ──
+   body가 상태바 높이만큼 위 여백을 두므로, 그 자리를 고정 남색 띠로 덮는다(시계·배터리 흰 글자가 보이게).
+   페이지를 끌어내릴 때 드러나는 바탕도 남색. 화면 바탕은 body가 그대로 칠한다. */
+html { background: #16233f; }
+body { background: var(--bg); }
+body::before { content: ''; position: fixed; z-index: 1000; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: #16233f; pointer-events: none; }
+/* 자체적으로 상태바 여백을 넣는 남색 머리글은 body 여백과 겹치지 않게 위로 올림 */
+.office-head { margin-top: calc(-1 * env(safe-area-inset-top, 0px)); }
+/* 스크롤해도 따라오는 머리글은 상태바 띠 바로 아래에 붙음 */
+.play-head, .rk-head { top: env(safe-area-inset-top, 0px); }
+
+/* ── 팀 구성 ── */
+.o-btns.three { grid-template-columns: 1fr 1fr 1.3fr; }
+.team-sheet { max-height: 78vh; }
+.team-list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 8px; overflow-y: auto; }
+.team-card { width: 100%; display: grid; grid-template-columns: 52px 1fr 28px; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; border: 1.5px solid var(--line, #e3e7ef); background: var(--card, #fff); text-align: left; color: inherit; font: inherit; }
+.team-card.on { border-color: var(--accent, #3b6ff5); background: color-mix(in srgb, var(--accent, #3b6ff5) 8%, var(--card, #fff)); }
+.team-spr { width: 52px; height: 52px; position: relative; overflow: hidden; border-radius: 12px; background: linear-gradient(160deg, #dfe9ff, #d8f5ec); }
+.team-sprite { position: absolute; width: 150%; left: -25%; top: 4%; }
+.team-text { display: grid; gap: 1px; min-width: 0; }
+.team-text b { font-size: 15px; }
+.team-text small { color: var(--sub); font-size: 12px; }
+.team-meta { font-size: 11px !important; }
+.team-check { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line, #d5dbe6); display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 13px; font-family: var(--font-pixel, inherit); }
+.team-card.on .team-check { background: var(--accent, #3b6ff5); border-color: var(--accent, #3b6ff5); color: #fff; }

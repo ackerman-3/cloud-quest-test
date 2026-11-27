@@ -32,6 +32,7 @@ import {
   type PracticeKind,
   type Progress,
   type Session,
+  teamOf,
 } from './store'
 
 type Tab = 'home' | 'projects' | 'study' | 'office' | 'records'
@@ -301,7 +302,7 @@ export default function App() {
     )
   }
 
-  const newEp = FRIENDS.some((f) => f.episodes.some((e) => affinity(progress, f.id) >= e.need && !(progress.seenEpisodes ?? []).includes(e.id)))
+  const newEp = FRIENDS.filter((f) => teamOf(progress).includes(f.id)).some((f) => f.episodes.some((e) => affinity(progress, f.id) >= e.need && !(progress.seenEpisodes ?? []).includes(e.id)))
   return (
     <div className="with-nav">
       {toast}

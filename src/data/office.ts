@@ -6,11 +6,13 @@ import { CHARS } from './characters'
 // 가구 그림은 같은 스크립트가 만든 src/assets/office/*.png, 기념품 그림은 officeArt.ts(scripts/office-art.py)를 쓴다.
 
 /** 동료 위치(바닥 좌표, 발 위치) */
-export const DESKMATES: { id: string; x: number; y: number; flip?: boolean }[] = [
-  { id: 'senior', x: 57, y: 36 },
-  { id: 'lead', x: 24, y: 52, flip: true },
-  { id: 'peer', x: 49, y: 57 },
+/** 동료 자리 3개(팀 구성 순서대로 앉음: 원년 멤버는 lead·senior·peer 순) */
+export const DESK_SEATS: { x: number; y: number; flip?: boolean }[] = [
+  { x: 24, y: 52, flip: true },
+  { x: 57, y: 36 },
+  { x: 49, y: 57 },
 ]
+export const deskmates = (team: string[]) => team.map((id, i) => ({ id, ...DESK_SEATS[i] }))
 
 /** 항상 있는 가구(구매·교체 대상 아님) */
 export const FIXTURES: { art: string; x: number; y: number; z?: number }[] = [{ art: 'desk_fixed', x: 8, y: 38 }]
@@ -120,7 +122,7 @@ export const MEMENTOS: Memento[] = [
   { id: 'r_lead', name: '케이의 핸드드립 세트', art: 'r_lead', how: '케이와 "믿음직한 동료" 달성', friend: 'lead' },
   { id: 'r_senior', name: '다육이 "오로라"의 새끼 화분', art: 'r_senior', how: '변의주와 "믿음직한 동료" 달성', friend: 'senior' },
   { id: 'r_peer', name: '멀티 AZ 덤벨 세트', art: 'r_peer', how: '니콜라스와 "믿음직한 동료" 달성', friend: 'peer' },
-  { id: 'team_photo', name: '팀 사진 액자', art: 'team_photo', how: '세 동료 모두와 "믿음직한 동료" 달성' },
+  { id: 'team_photo', name: '팀 사진 액자', art: 'team_photo', how: '케이·변의주·니콜라스 모두와 "믿음직한 동료" 달성' },
 ]
 
 // 동료 에피소드 보상(끝까지 본 에피소드마다 하나). 받는 조건 판정은 store.ts earnedMementos()

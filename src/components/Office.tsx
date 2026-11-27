@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import roomBg from '../assets/office/room.png'
 import { CHARS } from '../data/characters'
 import { ART, ART_PAL } from '../data/officeArt'
-import { DESKMATES, FIXTURES, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS, furniture, memento, type Furniture, type Slot } from '../data/office'
+import { deskmates, FIXTURES, FURNITURE, MEMENTOS, RELATION_PROP_NEED, SLOTS, furniture, memento, type Furniture, type Slot } from '../data/office'
 import { ROOM, SPRITES } from '../data/officeSprites'
-import { BONDS, FRIENDS, GOLD, SNACKS, TALK_POINTS, PROJECT_POINTS, bondOf, giftPoints, type Episode, type GiftItem } from '../data/rewards'
+import { BONDS, FRIENDS, GOLD, ORIGINAL_TEAM, TEAM_SIZE, SNACKS, TALK_POINTS, PROJECT_POINTS, bondOf, giftPoints, type Episode, type GiftItem } from '../data/rewards'
 import { W as SPR_W, H as SPR_H } from '../pixel'
 import {
   buyItem,
@@ -20,6 +20,8 @@ import {
   teamwork,
   teamworkParts,
   type Progress,
+  teamOf,
+  setTeam,
 } from '../store'
 import type { Line } from '../types'
 import { Sprite } from './Sprite'
@@ -137,7 +139,7 @@ export function OfficeMini({ progress, onOpen }: { progress: Progress; onOpen: (
       ),
     })
   }
-  for (const m of DESKMATES) {
+  for (const m of deskmates(teamOf(progress))) {
     const fr = FRIENDS.find((x) => x.id === m.id)!
     const newEp = fr.episodes.some((e) => teamwork(progress, m.id) >= e.need && !seen.has(e.id))
     layers.push({
@@ -225,6 +227,7 @@ export function Office({
   const earned = earnedMementos(progress)
   const seen = new Set(progress.seenEpisodes ?? [])
 
+  const [teamOpen, setTeamOpen] = useState(false)
   const say = (m: string) => setToast(m)
   useEffect(() => {
     if (!toast) return
@@ -402,7 +405,7 @@ export function Office({
     const key = s.floor ? -1e9 : s.kind === 'display' ? shelfKey + 0.5 : s.x + s.y + m.front
     layers.push({ key: s.id, y: key, node })
   }
-  for (const m of DESKMATES) {
+  for (const m of deskmates(teamOf(progress))) {
     const c = CHARS[m.id]
     const fr = FRIENDS.find((x) => x.id === m.id)!
     const newEp = fr.episodes.some((e) => teamwork(progress, m.id) >= e.need && !seen.has(e.id))
@@ -496,7 +499,10 @@ export function Office({
             <i />
             <small>아래로 내려 사무실만 보기</small>
           </button>
-          <div className="o-btns">
+          <div className="o-btns three">
+            <button className="ghost" onClick={() => setTeamOpen(true)}>
+              👥 팀 구성
+            </button>
             <button className="ghost" onClick={() => startDecor()}>
               🛋️ 꾸미기
             </button>
@@ -543,6 +549,18 @@ export function Office({
             🛒 아이템 상점 열기
           </button>
         </section>
+      )}
+
+      {teamOpen && (
+        <TeamSheet
+          progress={progress}
+          onClose={() => setTeamOpen(false)}
+          onSave={(ids) => {
+            setProgress(setTeam(progress, ids))
+            setTeamOpen(false)
+            say('팀 구성을 바꿨어요')
+          }}
+        />
       )}
 
       {/* ── 동료 패널 ── */}
@@ -667,10 +685,10 @@ export function Office({
                             </span>
                           </div>
                         )}
-                        {b.min === RELATION_PROP_NEED && (
+                        {b.min === RELATION_PROP_NEED && ORIGINAL_TEAM.includes(sel) && (
                           <div className="o-prop">
                             <PixelArt name="team_photo" className="o-prop-art" />
-                            <span>세 동료 모두 이 단계면 팀 사진 액자{earned.has('team_photo') ? '' : ' 🔒'}</span>
+                            <span>원년 멤버 세 명 모두 이 단계면 팀 사진 액자{earned.has('team_photo') ? '' : ' 🔒'}</span>
                           </div>
                         )}
                       </li>
@@ -864,5 +882,62 @@ export function EpisodeHeader({ title, name, onBack }: { title: string; name: st
         <b>{title}</b>
       </div>
     </header>
+  )
+}
+
+/** 팀 구성: 사무실·라운지에 함께 있을 동료 3명 고르기 */
+function TeamSheet({ progress, onClose, onSave }: { progress: Progress; onClose: () => void; onSave: (ids: string[]) => void }) {
+  const [pick, setPick] = useState<string[]>(() => teamOf(progress))
+  const seen = new Set(progress.seenEpisodes ?? [])
+  const toggle = (id: string) =>
+    setPick((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : cur.length >= TEAM_SIZE ? cur : [...cur, id]))
+  const same = pick.join() === teamOf(progress).join()
+  return (
+    <>
+      <div className="o-dim" onClick={onClose} />
+      <div className="o-sheet team-sheet" role="dialog" aria-label="팀 구성">
+        <button className="o-grip" onClick={onClose} aria-label="닫기" />
+        <div className="o-sheet-head">
+          <b>팀 구성 {pick.length}/{TEAM_SIZE}</b>
+          <small>사무실과 라운지에 함께 있을 동료 {TEAM_SIZE}명을 골라요. 고른 순서대로 자리에 앉아요.</small>
+        </div>
+        <ul className="team-list">
+          {FRIENDS.map((fr) => {
+            const c = CHARS[fr.id]
+            const pts = teamwork(progress, fr.id)
+            const b = bondOf(pts)
+            const eps = fr.episodes.filter((e) => seen.has(e.id)).length
+            const order = pick.indexOf(fr.id)
+            return (
+              <li key={fr.id}>
+                <button className={`team-card ${order >= 0 ? 'on' : ''}`} onClick={() => toggle(fr.id)} aria-pressed={order >= 0}>
+                  <span className="team-spr">
+                    <Sprite cfg={c} talking={false} className="team-sprite" />
+                  </span>
+                  <span className="team-text">
+                    <b>{c.name}</b>
+                    <small>{c.role}</small>
+                    <small className="team-meta">
+                      {BONDS[b.idx].name} · 에피소드 {eps}/{fr.episodes.length}
+                      {!ORIGINAL_TEAM.includes(fr.id) && pts === 0 ? ' · NEW' : ''}
+                    </small>
+                  </span>
+                  <i className="team-check">{order >= 0 ? order + 1 : ''}</i>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+        <small className="o-sub">팀에서 빠진 동료의 팀워크와 에피소드 기록은 그대로 남아요. 새 동료는 이야기하기와 간식으로 팀워크를 올려요.</small>
+        <div className="o-btns">
+          <button className="ghost" onClick={() => setPick([...ORIGINAL_TEAM])}>
+            원년 멤버로
+          </button>
+          <button className="primary" disabled={pick.length !== TEAM_SIZE || same} onClick={() => onSave(pick)}>
+            {pick.length === TEAM_SIZE ? '이 팀으로 하기' : `${TEAM_SIZE - pick.length}명 더 고르기`}
+          </button>
+        </div>
+      </div>
+    </>
   )
 }
