@@ -9,6 +9,8 @@ export const SERVICES: Record<string, Service> = Object.fromEntries(
       { id: 'onpremDb', name: '온프레미스 DB', short: 'DB', cat: 'onprem', scope: 'fixed', desc: '고객 데이터센터의 데이터베이스', cost: 0 },
       { id: 'nas', name: '파일 서버', short: 'NAS', cat: 'onprem', scope: 'fixed', desc: '사무실 파일 서버', cost: 0 },
       { id: 'line', name: '인터넷 회선', short: '〰', cat: 'onprem', scope: 'fixed', desc: '이미 사용 중인 인터넷 회선', cost: 0 },
+      { id: 's3Versioned', name: 'S3 (버전 관리 활성화)', short: 'S3·V', cat: 'storage', scope: 'region', desc: '같은 키의 여러 객체 버전을 보존', cost: 1 },
+      { id: 'sqsFifo', name: 'SQS FIFO 큐', short: 'FIFO', cat: 'integration', scope: 'region', desc: '메시지 그룹별 순서 보장과 전송 중복 제거', cost: 0 },
 
       // 네트워크
       { id: 'igw', name: '인터넷 게이트웨이', short: 'IGW', cat: 'network', scope: 'vpcEdge', desc: 'VPC와 인터넷을 연결하는 관문', cost: 0 },

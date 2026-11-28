@@ -76,5 +76,14 @@ export const VOICE_SERVER: Record<string, string> = {
   "academy-audit/2/q": "규정 준수를 위해 AWS 리소스의 구성 변경을 추적하고, 리소스에 대한 API 호출 기록도 남겨야 해요. 올바른 조합은?",
   "firstvpc-cidr/0/1": "그렇다면 주소 대역부터 잘 정해야 해요. 나중에 바꾸기 정말 어렵거든요.",
   "firstvpc-cidr/2/q": "본사가 10.0.0.0/16을 쓰고, 나중에 VPN으로 연결해요. 새 VPC의 IPv4 CIDR로 알맞은 것은?",
-  "firstvpc-cidr/5/1": "NAT 게이트웨이는 AZ 단위 리소스예요. 하나만 두면 그게 단일 장애 지점이 돼요."
+  "firstvpc-cidr/5/1": "NAT 게이트웨이는 AZ 단위 리소스예요. 하나만 두면 그게 단일 장애 지점이 돼요.",
+  "publisher-versioning/2/q": "S3에서 같은 키에 올린 표지 파일의 이전 내용까지 보관하려면 어떤 기능을 켜야 할까요?",
+  "settle-s3-endpoint/2/q": "프라이빗 서브넷의 EC2에서 같은 리전의 S3로 인터넷 경로 없이 연결하는 데 추가 엔드포인트 요금이 없는 방법은?",
+  "academy-cpu-alarm/2/q": "EC2 상세 모니터링이 활성화돼 있어요. CPUUtilization의 1분 평균이 3회 연속 80%를 넘을 때 경보를 울리려면?",
+  "logistics-fifo/2/q": "운송장별 순서를 유지하면서 서로 다른 운송장의 메시지는 동시에 처리하려면?",
+  "shop-returns-filter/2/q": "SNS 주제 하나에 모든 이벤트를 발행하고 있어요. 큐에 쌓이기 전에 팀별로 나누려면?",
+  "ticket-seat-lock/2/q": "예약 테이블의 파티션 키는 공연 ID와 좌석 번호를 조합한 seatKey입니다. 같은 좌석을 동시에 요청할 때 첫 쓰기만 성공시키려면?",
+  "media-private-origins/2/q": "S3 버킷을 공개하지 않고 지정한 CloudFront 배포만 이미지에 접근하려면?",
+  "delivery-private-ecr/2/q": "Fargate 태스크가 ECR 프라이빗 저장소에서 이미지를 받기 위해 필요한 엔드포인트 조합은?",
+  "insure-aurora-failover/2/q": "다른 AZ에 Aurora Replica를 준비했어요. 접수 앱이 승격된 쓰기 인스턴스에 재연결하려면 어떤 주소를 사용해야 할까요?"
 }

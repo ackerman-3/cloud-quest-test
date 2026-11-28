@@ -2,6 +2,7 @@ import type { Box, Project, Result, Scope } from '../types'
 import { PROJECTS2 } from './projects2'
 import { PROJECTS3 } from './projects3'
 import { PROJECTS4 } from './projects4'
+import { PROJECTS5 } from './projects5'
 
 // ── 작은 도우미 ─────────────────────────────────────────────
 const B = (id: string, kind: Box['kind'], label: string, children: Box[] = [], dir: 'row' | 'col' = 'col'): Box => ({
@@ -1808,7 +1809,7 @@ const p11: Project = {
   ],
 }
 
-export const PROJECTS: Project[] = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ...PROJECTS2, ...PROJECTS3, ...PROJECTS4]
+export const PROJECTS: Project[] = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ...PROJECTS2, ...PROJECTS3, ...PROJECTS4, ...PROJECTS5]
 
 export const LEVELS = [
   { level: 1 as const, name: '신입 아키텍트', diff: '쉬움', need: 0 },

@@ -38,5 +38,14 @@ export const VOICE_CODING: Record<string, string> = {
   "mall-iam-role/3/q": "같은 업무를 하는 신입 개발자 5명에게 권한을 주는 가장 안전하고 관리하기 쉬운 방법은?",
   "academy-audit/0/1": "로그 보면 되지 않아요? CloudWatch… 아니 CloudTrail? 이름만 적지 말고 역할도 같이 적어야겠어요.",
   "academy-audit/3/q": "아무 설정을 안 해도 CloudTrail 콘솔의 이벤트 기록에서 볼 수 있는 관리 이벤트는 최근 며칠치일까요?",
-  "firstvpc-cidr/3/q": "서브넷을 10.1.1.0/24로 만들면 EC2 같은 리소스에 줄 수 있는 IP는 몇 개일까요?"
+  "firstvpc-cidr/3/q": "서브넷을 10.1.1.0/24로 만들면 EC2 같은 리소스에 줄 수 있는 IP는 몇 개일까요?",
+  "publisher-versioning/3/q": "버전 관리가 켜진 버킷에서 버전 ID를 지정하지 않고 표지를 지웠어요. 직전 시안을 다시 현재 버전으로 보이게 하려면?",
+  "settle-s3-endpoint/3/q": "게이트웨이 엔드포인트를 만들었는데 프라이빗 서브넷의 라우팅 테이블을 선택하지 않았어요. 무엇을 바꿔야 할까요?",
+  "academy-cpu-alarm/3/q": "경보가 ALARM으로 바뀔 때 운영팀 메일로 알리려면 어떤 구성이 좋을까요?",
+  "logistics-fifo/3/q": "전송 응답을 잃어 같은 배송 이벤트를 1분 뒤 재전송합니다. FIFO 큐에서 재전송을 중복으로 인식하게 하려면?",
+  "shop-returns-filter/3/q": "이벤트 종류가 SNS 메시지의 type 속성에 들어 있어요. 본문은 변경할 수 없을 때 필터 범위는 무엇으로 설정할까요?",
+  "ticket-seat-lock/3/q": "동일 좌석의 두 번째 요청이 ConditionalCheckFailedException을 받았어요. 예매 API는 어떻게 처리할까요?",
+  "media-private-origins/3/q": "기존 ALB 뒤 API는 Authorization 헤더로 사용자를 확인합니다. 이미지 캐시는 살리고 개인별 API 응답의 공유는 막으려면?",
+  "delivery-private-ecr/3/q": "엔드포인트는 모두 있고 실행 역할 권한도 정상입니다. 기본 ECR 호스트 이름을 사용할 때 필요한 DNS·보안 그룹 설정은?",
+  "insure-aurora-failover/3/q": "리더가 두 대 있을 때 보고서 연결을 여러 리더에 나누면서 추가·삭제를 따라가려면?"
 }

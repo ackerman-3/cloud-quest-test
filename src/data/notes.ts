@@ -217,7 +217,7 @@ export const NOTES: Note[] = [
       { when: 'VPC의 IP가 모자라면', then: '보조 CIDR 블록을 추가해요' },
       { when: '피어링·VPN으로 연결할 VPC라면', then: '기존 대역과 겹치지 않는 CIDR을 골라요' },
     ],
-    projects: ['flower-shop', 'settlement-nat', 'firstvpc-cidr'],
+    projects: ['flower-shop', 'settlement-nat', 'firstvpc-cidr', 'settle-s3-endpoint'],
   },
   {
     id: 'security',
@@ -306,7 +306,7 @@ export const NOTES: Note[] = [
       { when: 'UDP나 고정 IP 로드 밸런서가 필요하면', then: 'NLB를 써요' },
       { when: '서버 관리 없이 컨테이너를 돌리려면', then: 'ECS on Fargate를 써요' },
     ],
-    projects: ['ticket-rush', 'codelab-schedule', 'studio-spot', 'delivery-container'],
+    projects: ['ticket-rush', 'codelab-schedule', 'studio-spot', 'delivery-container', 'delivery-private-ecr'],
   },
   {
     id: 'storage',
@@ -353,7 +353,7 @@ export const NOTES: Note[] = [
       { when: '사내 NAS처럼 쓰면서 S3에 저장하려면', then: 'Storage Gateway 파일 게이트웨이를 써요' },
       { when: '임시 다운로드 링크가 필요하면', then: 'S3 미리 서명된 URL을 발급해요' },
     ],
-    projects: ['book-launch', 'wedding-storage-class', 'studio-backup', 'webzine-efs'],
+    projects: ['book-launch', 'wedding-storage-class', 'studio-backup', 'webzine-efs', 'publisher-versioning'],
   },
   {
     id: 'database',
@@ -398,7 +398,7 @@ export const NOTES: Note[] = [
       { when: 'Lambda 때문에 DB 연결이 고갈되면', then: 'RDS Proxy를 둬요' },
       { when: 'DB 백업을 35일보다 오래 보관해야 하면', then: 'AWS Backup이나 수동 스냅샷을 써요' },
     ],
-    projects: ['estate-replica', 'insure-migration', 'coupon-proxy'],
+    projects: ['estate-replica', 'insure-migration', 'coupon-proxy', 'ticket-seat-lock', 'insure-aurora-failover'],
   },
   {
     id: 'serverless',
@@ -442,7 +442,7 @@ export const NOTES: Note[] = [
       { when: '수십만 곳에서 오는 실시간 데이터라면', then: 'Kinesis Data Streams를 써요' },
       { when: 'S3에 올라오면 자동으로 처리해야 하면', then: 'S3 이벤트 알림으로 Lambda를 호출해요' },
     ],
-    projects: ['photo-thumbnail', 'survey-serverless', 'order-fanout', 'game-logs', 'scooter-stream', 'order-decouple'],
+    projects: ['photo-thumbnail', 'survey-serverless', 'order-fanout', 'game-logs', 'scooter-stream', 'order-decouple', 'logistics-fifo', 'shop-returns-filter'],
   },
   {
     id: 'hybrid',
@@ -527,7 +527,7 @@ export const NOTES: Note[] = [
       { when: 'RTO는 분 단위, 비용은 적당히라면', then: '웜 스탠바이를 골라요' },
       { when: 'RTO·RPO 최소가 우선이고 비용은 상관없으면', then: '멀티 사이트 액티브-액티브를 골라요' },
     ],
-    projects: ['cafe-domain', 'edu-dr', 'glowup-global', 'battle-accelerator'],
+    projects: ['cafe-domain', 'edu-dr', 'glowup-global', 'battle-accelerator', 'media-private-origins'],
   },
   {
     id: 'ops',
@@ -568,7 +568,7 @@ export const NOTES: Note[] = [
       { when: '계정별 비용이 기준을 넘으면 알림을 받으려면', then: 'AWS Budgets를 써요' },
       { when: '여러 서비스의 백업을 한곳에서 관리하려면', then: 'AWS Backup을 써요' },
     ],
-    projects: ['academy-audit', 'precision-backup'],
+    projects: ['academy-audit', 'precision-backup', 'academy-cpu-alarm'],
   },
 ]
 
