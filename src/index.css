@@ -317,6 +317,8 @@ h3 {
 }
 .pitem p {
   white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   margin: 4px 0;
   font-size: 14px;
   color: #3a4659;
