@@ -428,12 +428,6 @@ export async function changePassword(password: string) {
   if (error) throw new Error(errText(error))
 }
 
-export async function memberCount(): Promise<number | null> {
-  if (!enabled) return null
-  const { data, error } = await sb().rpc('member_count')
-  return error ? null : Number(data)
-}
-
 /** 게시판 전용 RPC. 기존 로그인 세션을 재사용하며 비밀글은 기기에 따로 저장하지 않는다. */
 export async function callBoardRpc<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
   if (!/^board_(meta|list|get|create|comment|delete_post|delete_comment|status)$/.test(name)) throw new Error('지원하지 않는 요청이에요.')

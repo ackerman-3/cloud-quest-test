@@ -5,7 +5,7 @@ import { randomNickname } from '../data/nicknames'
 import { ownedTitles, type Progress } from '../store'
 import { AnimalAvatar } from './AnimalAvatar'
 import { NicknameInput, ProfileEditor } from './ProfileEditor'
-import { demoMode, changePassword, memberCount, signIn, signOut, signUp, syncNow, useCloud, USERNAME_RE } from '../cloud'
+import { demoMode, changePassword, signIn, signOut, signUp, syncNow, useCloud, USERNAME_RE } from '../cloud'
 
 /** 홈 상단의 작은 계정 표시. 누르면 기록 탭의 계정 카드로 */
 export function AccountChip({ onOpen }: { onOpen: () => void }) {
@@ -23,12 +23,7 @@ export function AccountCard({ onMessage, progress }: { onMessage: (m: string) =>
   const c = useCloud()
   const [sheet, setSheet] = useState<null | 'login' | 'signup' | 'password'>(null)
   const [editing, setEditing] = useState(false)
-  const [members, setMembers] = useState<number | null>(null)
   const [askLeave, setAskLeave] = useState(false)
-
-  useEffect(() => {
-    if (c.enabled) memberCount().then(setMembers)
-  }, [c.enabled, c.signedIn])
 
   if (!c.enabled) return null
 
@@ -41,7 +36,6 @@ export function AccountCard({ onMessage, progress }: { onMessage: (m: string) =>
     <section className="card account-card">
       <div className="card-head">
         <h2>계정</h2>
-        {members !== null && <span className="pill tiny">참여 중인 아키텍트 {members}명</span>}
       </div>
       {demoMode && (
         <p className="demo-note">
