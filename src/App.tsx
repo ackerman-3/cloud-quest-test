@@ -10,6 +10,7 @@ import { InquiryBoard } from './components/InquiryBoard'
 import { castProject } from './data/cast'
 import { ATTEND_GOLD, FRIENDS, GOLD, PRACTICE_RATE, type Episode } from './data/rewards'
 import { PROJECTS, LEVELS } from './data/projects'
+import { titleName } from './data/ranking'
 import { CHARS } from './data/characters'
 import { STUDY_URL } from './data/links'
 import { applyUpdate, checkUpdate } from './update'
@@ -22,6 +23,7 @@ import {
   markEpisodeSeen,
   loadProgress,
   loadSession,
+  ownedTitles,
   recordCompletion,
   recordPractice,
   practiceGold,
@@ -44,7 +46,7 @@ type View =
   | { v: 'home' }
   | { v: 'play'; id: string; resume?: Session | null; only?: PracticeKind }
   | { v: 'practiceResult'; id: string; x: Practice }
-  | { v: 'result'; id: string; c: Completion; levelUp: number | null }
+  | { v: 'result'; id: string; c: Completion; levelUp: number | null; newTitles: string[] }
   | { v: 'episode'; friend: string; ep: Episode }
   | { v: 'ranking' }
   | { v: 'board' }
@@ -228,10 +230,12 @@ export default function App() {
           }
           const before = unlockedLevel(progress)
           const { next, completion } = recordCompletion(progress, project.id, stars, peeked)
+          const previousTitles = ownedTitles(progress)
+          const newTitles = [...ownedTitles(next)].filter((id) => !previousTitles.has(id))
           setProgress(next)
           setSession(null)
           const after = unlockedLevel(next)
-          setView({ v: 'result', id: project.id, c: completion, levelUp: after > before ? after : null })
+          setView({ v: 'result', id: project.id, c: completion, levelUp: after > before ? after : null, newTitles })
           window.scrollTo(0, 0)
         }}
       />
@@ -284,6 +288,11 @@ export default function App() {
           {view.levelUp && (
             <div className="levelup">
               🎉 승급! <b>{LEVELS[view.levelUp - 1].name}</b>가 되었어요. {LEVELS[view.levelUp - 1].diff} 프로젝트가 열렸어요.
+            </div>
+          )}
+          {view.newTitles.length > 0 && (
+            <div className="levelup">
+              🏅 새 칭호 획득 <b>{view.newTitles.map(titleName).join(' · ')}</b>
             </div>
           )}
           <div className="row-center">

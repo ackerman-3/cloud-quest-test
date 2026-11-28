@@ -153,7 +153,14 @@ export function Ranking({ progress, onBack, onLogin }: { progress: Progress; onB
               return r ? (
                 <button key={r.user_id} className={`rk-seat p${place} ${r.is_me ? 'me' : ''}`} onClick={() => setSel(r.user_id)}>
                   <Crown place={r.rank ?? place} />
-                  <AnimalAvatar name={r.avatar} seed={r.user_id} className="rk-seat-pet" />
+                  <span className="rk-seat-portrait">
+                    {r.status_msg?.trim() && (
+                      <span className="rk-seat-bubble">
+                        <span>{r.status_msg}</span>
+                      </span>
+                    )}
+                    <AnimalAvatar name={r.avatar} seed={r.user_id} className="rk-seat-pet" />
+                  </span>
                   <span className="rk-seat-name">{r.nickname}</span>
                   <b className="rk-seat-score">{scoreOf(r)}</b>
                   {r.title && titleName(r.title) ? <span className="rk-seat-title">{titleName(r.title)}</span> : <span className="rk-seat-title none">{r.tie ? '공동' : ' '}</span>}
@@ -190,8 +197,8 @@ export function Ranking({ progress, onBack, onLogin }: { progress: Progress; onB
                 <span className="rk-who">
                   <span className="rk-line1">
                     <b>{r.nickname}</b>
-                    {r.is_me && <em className="rk-me">나</em>}
                     {r.title && titleName(r.title) && <span className="rk-title">{titleName(r.title)}</span>}
+                    {r.is_me && <em className="rk-me">나</em>}
                   </span>
                   {r.status_msg && <span className="rk-status">{r.status_msg}</span>}
                 </span>

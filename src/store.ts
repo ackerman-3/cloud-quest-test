@@ -461,10 +461,33 @@ export function rankStats(p: Progress) {
 export function ownedTitles(p: Progress) {
   const m = earnedMementos(p)
   const bought = new Set((p.purchases ?? []).map((x) => x.item)).size
+  const completed = doneProjects(p)
+  const knownProjects = new Set(completed.map((project) => project.id))
+  const perfectProjects = new Set<string>()
+  const imperfectProjects = new Set<string>()
+  const projectsByDay = new Map<string, Set<string>>()
+  let improved = false
+  for (const c of [...p.completions].sort((a, b) => a.ts - b.ts)) {
+    if (!knownProjects.has(c.projectId)) continue
+    const dayProjects = projectsByDay.get(c.date) ?? new Set<string>()
+    dayProjects.add(c.projectId)
+    projectsByDay.set(c.date, dayProjects)
+    if (c.stars === 3) {
+      if (imperfectProjects.has(c.projectId)) improved = true
+      if (!c.peeked) perfectProjects.add(c.projectId)
+    } else if (c.stars === 1 || c.stars === 2) {
+      imperfectProjects.add(c.projectId)
+    }
+  }
   const has: Record<string, boolean> = {
     rookie: true,
     first_project: m.has('m_first'),
     perfect: m.has('m_star'),
+    desk_regular: completed.length >= 4,
+    no_overtime: [...projectsByDay.values()].some((projects) => projects.size >= 3),
+    second_take: improved,
+    star_sniper: perfectProjects.size >= 6,
+    senior_snack: completed.filter((project) => project.level === 3).length >= 3,
     ten: m.has('m_ten'),
     streak7: m.has('m_streak'),
     junior: m.has('m_junior'),
